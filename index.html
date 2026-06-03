@@ -1065,18 +1065,14 @@ function buildDocx(){
     var d=(typeof docx!=="undefined")?docx:window.docx;
     if(!d||!d.BorderStyle){ alert("Word library not ready. Please click Save as Word again."); return; }
 
-    // ============================================================
-    // EXACT SPECS FROM TEMPLATE
-    // Legal 21.59cm x 33.02cm | Margins 1.27cm all | Calibri 12pt | Line 1.15
-    // ============================================================
-    var CM=567; // DXA per cm
-    var PW=Math.round(21.59*CM);  // 12231
-    var PH=Math.round(33.02*CM);  // 18702
-    var MAR=Math.round(1.27*CM);  // 720
-    var contentW=PW-MAR*2;        // 10791
+    // Legal long bond: 21.59cm x 33.02cm | Margins 1.27cm | Calibri 12pt | 1.15 spacing
+    var CM=567;
+    var PW=Math.round(21.59*CM);
+    var PH=Math.round(33.02*CM);
+    var MAR=Math.round(1.27*CM);
+    var contentW=PW-MAR*2;
 
-    // EXACT col widths from template (cm → DXA)
-    // Section tables: 12.723, 1.263, 1.422, 1.106, 1.265, 1.263
+    // EXACT col widths from template (cm)
     var C0=Math.round(12.723*CM);
     var C1=Math.round(1.263*CM);
     var C2=Math.round(1.422*CM);
@@ -1084,69 +1080,53 @@ function buildDocx(){
     var C4=Math.round(1.265*CM);
     var C5=contentW-C0-C1-C2-C3-C4;
 
-    // Summary table: 8.922, 1.429, 2.064, 2.381, rest
+    // Summary: 8.922, 1.429, 2.064, 2.381, rest
     var S0=Math.round(8.922*CM);
     var S1=Math.round(1.429*CM);
     var S2=Math.round(2.064*CM);
     var S3=Math.round(2.381*CM);
     var S4=contentW-S0-S1-S2-S3;
 
-    // Legend table: 6.509, 6.191, rest
+    // Legend: 6.509, 6.191, rest
     var L0=Math.round(6.509*CM);
     var L1=Math.round(6.191*CM);
     var L2=contentW-L0-L1;
-
-    // Header table: logo | gap | school name (approx halves)
-    var H0=Math.round(contentW*0.30);
-    var H1=Math.round(contentW*0.04);
-    var H2=contentW-H0-H1;
-
-    // Sig: roughly equal halves with small gap
-    var SG0=Math.round(contentW*0.55);
-    var SG2=Math.round(contentW*0.44);
-    var SG1=contentW-SG0-SG2;
 
     var NB={style:d.BorderStyle.NONE,size:0,color:"FFFFFF"};
     var CB={style:d.BorderStyle.SINGLE,size:6,color:"000000"};
     var BORDS={top:CB,bottom:CB,left:CB,right:CB};
     var NOBORDS={top:NB,bottom:NB,left:NB,right:NB};
 
-    // Calibri 12pt=size 24, line spacing 1.15
+    // Calibri 12pt = size 24, line 1.15 = 276
     function t(text,o){
       o=o||{};
-      return new d.TextRun({text:String(text),font:"Calibri",size:o.size||24,bold:!!o.bold,italics:!!o.italics,color:o.color||"000000"});
+      return new d.TextRun({text:String(text),font:"Calibri",size:o.size||24,bold:!!o.bold,italics:!!o.italics,underline:o.ul?{type:d.UnderlineType.SINGLE}:undefined,color:o.color||"000000"});
     }
     function p(ch,o){
       o=o||{};
       if(!Array.isArray(ch)) ch=[ch];
-      return new d.Paragraph({
-        alignment:o.align||d.AlignmentType.LEFT,
-        spacing:{before:o.before||0,after:o.after||0,line:276,lineRule:d.LineRuleType.AUTO},
-        children:ch
-      });
+      return new d.Paragraph({alignment:o.align||d.AlignmentType.LEFT,spacing:{before:o.before||0,after:o.after||0,line:276,lineRule:d.LineRuleType.AUTO},children:ch});
     }
     function mkCell(ch,w,b,va){
       if(!Array.isArray(ch)) ch=[ch];
-      return new d.TableCell({borders:b||BORDS,width:{size:w,type:d.WidthType.DXA},verticalAlign:va||d.VerticalAlign.CENTER,margins:{top:28,bottom:28,left:57,right:57},children:ch});
+      return new d.TableCell({borders:b||BORDS,width:{size:w,type:d.WidthType.DXA},verticalAlign:va||d.VerticalAlign.CENTER,margins:{top:20,bottom:20,left:57,right:57},children:ch});
     }
     function mkNB(ch,w,va){ return mkCell(ch,w,NOBORDS,va||d.VerticalAlign.CENTER); }
-
-    // Underline via bottom border
     function uLine(){
       return new d.Paragraph({spacing:{before:0,after:0,line:276,lineRule:d.LineRuleType.AUTO},border:{bottom:{style:d.BorderStyle.SINGLE,size:6,color:"000000",space:1}},children:[t("")]});
     }
 
-    // Get values
-    var name    =document.getElementById("i-name").value    ||"";
-    var cls     =document.getElementById("i-class").value   ||"";
-    var subj    =document.getElementById("i-subj").value    ||"";
-    var sy      =document.getElementById("i-sy").value      ||"";
-    var quarter =document.getElementById("i-quarter").value ||"";
+    // Values
+    var name    =document.getElementById("i-name").value||"";
+    var cls     =document.getElementById("i-class").value||"";
+    var subj    =document.getElementById("i-subj").value||"";
+    var sy      =document.getElementById("i-sy").value||"";
+    var quarter =document.getElementById("i-quarter").value||"";
     var dateobs =fmtDate(document.getElementById("i-dateobs").value);
-    var rater   =document.getElementById("i-rater").value   ||"";
-    var ptitle  =document.getElementById("i-title").value   ||"Academic Coordinator";
+    var rater   =document.getElementById("i-rater").value||"";
+    var ptitle  =document.getElementById("i-title").value||"School Head";
     var ratedate=fmtDate(document.getElementById("i-ratedate").value);
-    var recv    =document.getElementById("i-recv").value    ||"";
+    var recv    =document.getElementById("i-recv").value||"";
 
     var r1=calcSec("s1",0.40),r2=calcSec("s2",0.20),r3=calcSec("s3",0.20),r4=calcSec("s4",0.20);
     var total=+(r1.sub+r2.sub+r3.sub+r4.sub).toFixed(2);
@@ -1156,21 +1136,24 @@ function buildDocx(){
     function b2a(b){var bin=atob(b),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
     var logoArr=b2a(LB);
 
-    // HEADER TABLE: logo right | gap | red school name left
+    // HEADER: logo | gap | school name
+    var H0=Math.round(contentW*0.12);
+    var H1=Math.round(contentW*0.03);
+    var H2=contentW-H0-H1;
     function hdrTable(){
       return new d.Table({
         width:{size:contentW,type:d.WidthType.DXA},
         columnWidths:[H0,H1,H2],
         borders:{top:NB,bottom:NB,left:NB,right:NB,insideH:NB,insideV:NB},
         rows:[new d.TableRow({children:[
-          mkNB([new d.Paragraph({alignment:d.AlignmentType.RIGHT,spacing:{before:0,after:0},children:[new d.ImageRun({data:logoArr,transformation:{width:65,height:65},type:"png"})]})],H0),
+          mkNB([new d.Paragraph({alignment:d.AlignmentType.CENTER,spacing:{before:0,after:0},children:[new d.ImageRun({data:logoArr,transformation:{width:55,height:55},type:"png"})]})],H0,d.VerticalAlign.CENTER),
           mkNB([p(t(""))],H1),
-          mkNB([p(t("GreAtMinds Leadership Academy",{bold:true,size:52,color:"C0392B"}),{align:d.AlignmentType.LEFT})],H2)
+          mkNB([p(t("GreAtMinds Leadership Academy",{bold:true,size:48,color:"C0392B"}),{align:d.AlignmentType.LEFT})],H2,d.VerticalAlign.CENTER)
         ]})]
       });
     }
 
-    // SECTION TABLE
+    // SECTION TABLE - compact row height
     function secTbl(title,items,sid){
       var rows=[];
       rows.push(new d.TableRow({children:[
@@ -1185,12 +1168,12 @@ function buildDocx(){
       for(var i=0;i<items.length;i++){
         var item=items[i];
         if(item===null){
-          rows.push(new d.TableRow({children:[new d.TableCell({columnSpan:6,borders:BORDS,width:{size:contentW,type:d.WidthType.DXA},verticalAlign:d.VerticalAlign.CENTER,margins:{top:28,bottom:28,left:57,right:57},children:[p(t("Demonstrates the following values:",{bold:true,italics:true}))]})]}));
+          rows.push(new d.TableRow({children:[new d.TableCell({columnSpan:6,borders:BORDS,width:{size:contentW,type:d.WidthType.DXA},verticalAlign:d.VerticalAlign.CENTER,margins:{top:20,bottom:20,left:57,right:57},children:[p(t("Demonstrates the following values:",{bold:false,italics:false}))]})]}));
         } else {
           n++;
           var sel=ratings[sid]&&ratings[sid][ri]?ratings[sid][ri]:0;
-          rows.push(new d.TableRow({height:{value:Math.round(0.55*CM),rule:d.HeightRule.ATLEAST},children:[
-            mkCell([p(t(n+".  "+item))],C0),
+          rows.push(new d.TableRow({height:{value:Math.round(0.50*CM),rule:d.HeightRule.ATLEAST},children:[
+            mkCell([p(t(n+". "+item))],C0),
             mkCell([p(t(sel===5?"\u2713":""),{align:d.AlignmentType.CENTER})],C1),
             mkCell([p(t(sel===4?"\u2713":""),{align:d.AlignmentType.CENTER})],C2),
             mkCell([p(t(sel===3?"\u2713":""),{align:d.AlignmentType.CENTER})],C3),
@@ -1203,23 +1186,20 @@ function buildDocx(){
       return new d.Table({width:{size:contentW,type:d.WidthType.DXA},columnWidths:[C0,C1,C2,C3,C4,C5],rows:rows});
     }
 
-    // SCORE LINE - matches template exactly
+    // SCORE LINE - matches screenshot exactly
     function scoreLn(r,pct,sid){
       var rem=remarks[sid]||"";
       var res=[p([
-        t("Score:",{bold:true}),t(" "+String(r.score)),
-        t("\t\t",{}),
-        t("Average:",{bold:true}),t(" "+String(r.avg)),
-        t("\t  ",{}),
-        t("Description:",{bold:true}),t(" "+r.desc),
-        t("\t",{}),
-        t("Sub-Rating (AVG x "+pct+"):",{bold:true}),t(" "+String(r.sub))
-      ],{before:60,after:60})];
-      if(rem) res.push(p([t("Remarks: ",{bold:true}),t(rem)],{after:40}));
+        t("Score: ",{bold:true}),t(String(r.score),{ul:true}),
+        t("       Average: ",{bold:true}),t(String(r.avg),{ul:true}),
+        t("       Description: ",{bold:true}),t(r.desc,{ul:true}),
+        t("       Sub-Rating (AVG x "+pct+"): ",{bold:true}),t(String(r.sub))
+      ],{before:40,after:40})];
+      if(rem) res.push(p([t("Remarks: ",{bold:true}),t(rem)],{after:20}));
       return res;
     }
 
-    // LEGEND TABLE - exact widths: 6.509, 6.191, rest
+    // LEGEND TABLE
     function legTbl(){
       return new d.Table({
         width:{size:contentW,type:d.WidthType.DXA},
@@ -1227,20 +1207,20 @@ function buildDocx(){
         borders:{top:NB,bottom:NB,left:NB,right:NB,insideH:NB,insideV:NB},
         rows:[
           new d.TableRow({children:[
-            mkNB([p([t("1.0 to 1.59",{bold:true}),t("    Poor")])],L0),
-            mkNB([p([t("2.6 to 3.59",{bold:true}),t("     Satisfactory")])],L1),
-            mkNB([p([t("4.6 to 5.0",{bold:true}),t("       Outstanding")])],L2)
+            mkNB([p([t("1.0 to 1.59  ",{}),t("Poor")])],L0),
+            mkNB([p([t("2.6 to 3.59  ",{}),t("Satisfactory")])],L1),
+            mkNB([p([t("4.6 to 5.0  ",{}),t("Outstanding")])],L2)
           ]}),
           new d.TableRow({children:[
-            mkNB([p([t("1.6 to 2.59",{bold:true}),t("    Needs Improvement")])],L0),
-            mkNB([p([t("3.6 to 4.59",{bold:true}),t("     Very Satisfactory")])],L1),
+            mkNB([p([t("1.6 to 2.59  ",{}),t("Needs Improvement")])],L0),
+            mkNB([p([t("3.6 to 4.59  ",{}),t("Very Satisfactory")])],L1),
             mkNB([p(t(""))],L2)
           ]})
         ]
       });
     }
 
-    // SUMMARY TABLE - exact widths: 8.922, 1.429, 2.064, 2.381, rest
+    // SUMMARY TABLE
     function sumTbl(){
       var rows=[];
       rows.push(new d.TableRow({children:[
@@ -1271,7 +1251,7 @@ function buildDocx(){
       return new d.Table({width:{size:contentW,type:d.WidthType.DXA},columnWidths:[S0,S1,S2,S3,S4],rows:rows});
     }
 
-    // INFO ROWS - matching template style (label bold + value + underline)
+    // INFO ROWS
     function iRow2(l1,v1,l2,v2){
       var w1=Math.floor(contentW/2),w2=contentW-w1;
       return new d.Table({width:{size:contentW,type:d.WidthType.DXA},columnWidths:[w1,w2],
@@ -1287,7 +1267,7 @@ function buildDocx(){
         rows:[new d.TableRow({children:[mkNB([p([t(l1,{bold:true}),t(v1)]),uLine()],contentW)]})]});
     }
     function iRow3(l1,v1,l2,v2,l3,v3){
-      var w1=Math.floor(contentW*0.38),w2=Math.floor(contentW*0.15),w3=contentW-w1-w2;
+      var w1=Math.floor(contentW*0.38),w2=Math.floor(contentW*0.16),w3=contentW-w1-w2;
       return new d.Table({width:{size:contentW,type:d.WidthType.DXA},columnWidths:[w1,w2,w3],
         borders:{top:NB,bottom:NB,left:NB,right:NB,insideH:NB,insideV:NB},
         rows:[new d.TableRow({children:[
@@ -1297,35 +1277,65 @@ function buildDocx(){
         ]})]});
     }
 
-    // SIGNATURE - exactly as template:
-    // Rated by: ___ \t\t\t\t\t Date: ___
-    //                    School Head / title
-    // Copy received by: ___ \t\t Date: ___
-    //            Name & Signature of Teacher
-    function sigPara(){
-      return [
-        p([t("Rated by:",{bold:true}),t(" "+rater),t("\t\t\t\t\t",{}),t("Date:",{bold:true}),t(" "+ratedate)],{before:60,after:0}),
-        p([t("                              "),t(ptitle,{italics:false})],{before:0,after:40}),
-        p([t("Copy received by:",{bold:true}),t(" "+recv),t("\t\t",{}),t("Date:",{bold:true}),t(" ___________________")],{before:0,after:0}),
-        p([t("                         "),t("Name & Signature of Teacher",{italics:false})],{before:0,after:0})
-      ];
+    // SIGNATURES - exactly like screenshot
+    // "Rated by: _________           Date: _________"
+    // "               School Head"
+    // "Copy received by: _________   Date: _________"
+    // "          Name & Signature of Teacher"
+    function sigBlock(){
+      var w1=Math.floor(contentW*0.55),w2=contentW-w1;
+      var sigTbl1=new d.Table({
+        width:{size:contentW,type:d.WidthType.DXA},columnWidths:[w1,w2],
+        borders:{top:NB,bottom:NB,left:NB,right:NB,insideH:NB,insideV:NB},
+        rows:[new d.TableRow({children:[
+          mkNB([
+            p([t("Rated by: ",{bold:true}),t(rater)]),
+            uLine(),
+            p(t(ptitle,{}),{align:d.AlignmentType.CENTER})
+          ],w1,d.VerticalAlign.BOTTOM),
+          mkNB([
+            p([t("Date: ",{bold:true}),t(ratedate)]),
+            uLine()
+          ],w2,d.VerticalAlign.BOTTOM)
+        ]})]
+      });
+      var sigTbl2=new d.Table({
+        width:{size:contentW,type:d.WidthType.DXA},columnWidths:[w1,w2],
+        borders:{top:NB,bottom:NB,left:NB,right:NB,insideH:NB,insideV:NB},
+        rows:[new d.TableRow({children:[
+          mkNB([
+            p([t("Copy received by: ",{bold:true}),t(recv)]),
+            uLine(),
+            p(t("Name & Signature of Teacher",{italics:false}),{align:d.AlignmentType.CENTER})
+          ],w1,d.VerticalAlign.BOTTOM),
+          mkNB([
+            p([t("Date: ",{bold:true})]),
+            uLine()
+          ],w2,d.VerticalAlign.BOTTOM)
+        ]})]
+      });
+      return [sigTbl1, p(t(""),{before:40}), sigTbl2];
     }
 
     var SEC1=["Adopts objectives of syllabi and curricula","Selects content and prepares appropriate instructional materials & visual aids","Adopts appropriate teaching methods","Relates new lesson with students\u2019 previous knowledge and skills","Provides appropriate motivation","Presents and develops lessons","Conveys ideas clearly","Utilizes the art of questioning to develop higher level of thinking","Ensures students\u2019 participation","Addresses individual differences","Shows mastery of the subject matter","Diagnoses learner\u2019s needs","Evaluates learning outcomes","Differentiates instruction to suit students\u2019 needs","Uses a variety of effective instructional strategies and resources","Involves students in cooperative learning to enhance higher-order thinking skills","Uses a variety of formal and informal assessment strategies to guide instruction","Gives constructive and frequent feedback to students on their learning","Provides independent practice activities","Checks for understanding and adjusts instruction as needed","English oral communication skills","English written communication skills"];
     var SEC2=["Maintains a clean and orderly classroom","Maintains a classroom conducive to learning","Establishes clear expectations for classroom rules and procedures early in the school year and enforces them consistently and fairly","Maximizes instructional time.","Establishes a climate of trust and teamwork by being fair, caring, respectful, and enthusiastic","Respects students\u2019 diversity, including language, culture, race, gender and special needs","Cares about students as individuals and makes them feel valued","Promotes self-discipline","Manages disruptive behaviour, distractions and misconduct well.","Keeps criticisms fair, objective and minimal"];
     var SEC3=["Supports and participates in parent-teacher activities","Works well with the other teachers and administration","Has positive relationships with students individually and in groups","Provides a climate which opens up communication between the teacher and the parent","Uses discretion in handling confidential information and difficult situations","Informs administrators and/or appropriate personnel of school-related matters in a timely manner","Cooperates with parents in the best interest of students","Acknowledges rights of others to hold different views","Handles information about students\u2019 private lives in a proper manner","Has a positive disposition and attitude"];
-    var SEC4=["Adheres to school policies and guidelines at all times","Exerts effort to improve one\u2019s knowledge and skills","Takes responsibility for his/her actions","Channels concerns to proper authorities and not in social media nor to other people who are not of concern","Observes professional ethics","Is punctual in reporting to school and in submitting requirements","Is not often absent; when absent, only for valid reasons","Willingly accepts and satisfactorily performs tasks or assignments assigned to him/her, like committee work for co-curricular activities","Does not participate in rumor mongering","Wears the prescribed uniform at all times.",null,"Honesty/Integrity","Initiative/Resourcefulness","Courtesy","Respect for Authority","Teamwork","Leadership","Stress Tolerance","Fairness/Justice","Good Grooming","Human Relations","Self Confidence"];
+    var SEC4=["Adheres to school policies and guidelines at all times","Exerts effort to improve one\u2019s knowledge and skills","Takes responsibility for his/her actions","Channels concerns to proper authorities and not in social media nor to other people who are not in concern","Observes professional ethics","Is punctual in reporting to school and in submitting requirements","Is not often absent; when absent, only for valid reasons","Willingly accepts and satisfactorily performs tasks or assignments assigned to him/her, like committee work for co-curricular activities","Does not participate in rumor mongering","Wears the prescribed uniform at all times.",null,"Honesty/Integrity","Initiative/Resourcefulness","Courtesy","Respect for Authority","Teamwork","Leadership","Stress Tolerance","Fairness/Justice","Good Grooming","Human Relations","Self Confidence"];
 
     var secProps={page:{size:{width:PW,height:PH},margin:{top:MAR,right:MAR,bottom:MAR,left:MAR}}};
 
     var p1=[
       hdrTable(),
-      p(t("TEACHER\u2019S PERFORMANCE RATING SHEET",{bold:true}),{align:d.AlignmentType.CENTER,before:80,after:80}),
-      iRow2("Name of Teacher: ",name,"Advisory Class: ",cls),
-      iRowFull("Subjects & Grade Levels Handled: ",subj),
-      iRow3("School Year: ",sy,"Quarter: ",quarter,"Date Observed: ",dateobs),
-      p(t("Legend:",{bold:true}),{before:60,after:0}),
-      p([t("5",{bold:false}),t("  \u2013 Outstanding\t"),t("4 \u2013 Very Satisfactory\t       "),t("3 \u2013 Satisfactory\t   "),t("2 \u2013 Needs Improvement  \t"),t("1 - Poor")],{after:60}),
+      p(t(""),{before:20,after:0}),
+      p(t("TEACHER\u2019S PERFORMANCE RATING SHEET",{bold:true}),{align:d.AlignmentType.CENTER,before:0,after:60}),
+      iRow2("Name of Teacher:  ",name,"Advisory Class:  ",cls),
+      p(t(""),{before:20}),
+      iRowFull("Subjects & Grade Levels Handled:  ",subj),
+      p(t(""),{before:0}),
+      iRow3("","","Date Observed:  ",dateobs,"",""),
+      p(t(""),{before:20}),
+      p([t("Legend:",{bold:true})],{after:0}),
+      p([t("5",{bold:false}),t("  \u2013 Outstanding     "),t("4 \u2013 Very Satisfactory     "),t("3 \u2013 Satisfactory     "),t("2 \u2013 Needs Improvement  "),t("1 - Poor")],{after:60}),
       secTbl("I.  INSTRUCTIONAL COMPETENCE (40%)",SEC1,"s1")
     ].concat(scoreLn(r1,"40%","s1")).concat([
       secTbl("II.  LEARNING ENVIRONMENT (20%)",SEC2,"s2")
@@ -1336,12 +1346,14 @@ function buildDocx(){
     ].concat(scoreLn(r3,"20%","s3")).concat([
       secTbl("IV.  PROFESSIONALISM & PERSONAL CHARACTERISTICS (20%)",SEC4,"s4")
     ]).concat(scoreLn(r4,"20%","s4")).concat([
-      p(t("Legend: ",{bold:true}),{before:60,after:20}),
+      p(t(""),{before:20}),
+      p(t("Legend:",{bold:true}),{before:0,after:20}),
       legTbl(),
-      p(t(""),{before:40,after:0}),
+      p(t(""),{before:20}),
       p(t("Summary of Scores:",{bold:true}),{before:0,after:60}),
-      sumTbl()
-    ]).concat(sigPara());
+      sumTbl(),
+      p(t(""),{before:60})
+    ]).concat(sigBlock());
 
     var doc=new d.Document({sections:[{properties:secProps,children:p1},{properties:secProps,children:p2}]});
 
