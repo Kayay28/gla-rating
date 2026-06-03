@@ -1343,8 +1343,8 @@ function _buildDocx(btn){
 
     // KEY: line=240 (1.0 single), before=0, after=0 — matches Python template exactly
     function t(tx,o){o=o||{};return new d.TextRun({text:String(tx),font:"Calibri",size:o.sz||24,bold:!!o.b,italics:!!o.i,underline:o.ul?{type:d.UnderlineType.SINGLE}:undefined,color:o.col||"000000"});}
-    function p(ch,o){o=o||{};if(!Array.isArray(ch))ch=[ch];return new d.Paragraph({alignment:o.a||d.AlignmentType.LEFT,spacing:{before:o.sb||0,after:o.sa||0,line:240,lineRule:d.LineRuleType.AUTO},children:ch});}
-    function mc(ch,w,b,va){if(!Array.isArray(ch))ch=[ch];return new d.TableCell({borders:b||BD,width:{size:w,type:d.WidthType.DXA},verticalAlign:va||d.VerticalAlign.CENTER,margins:{top:20,bottom:20,left:57,right:57},children:ch});}
+    function p(ch,o){o=o||{};if(!Array.isArray(ch))ch=[ch];return new d.Paragraph({alignment:o.a||d.AlignmentType.LEFT,spacing:{before:o.sb||0,after:o.sa||0,line:240,lineRule:d.LineRuleType.EXACT},children:ch});}
+    function mc(ch,w,b,va){if(!Array.isArray(ch))ch=[ch];return new d.TableCell({borders:b||BD,width:{size:w,type:d.WidthType.DXA},verticalAlign:va||d.VerticalAlign.CENTER,margins:{top:0,bottom:0,left:57,right:40},children:ch});}
     function mn(ch,w,va){return mc(ch,w,NI,va||d.VerticalAlign.CENTER);}
     function ul(){return new d.Paragraph({spacing:{before:0,after:0,line:240,lineRule:d.LineRuleType.AUTO},border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:"000000",space:1}},children:[t("")]});}
 
@@ -1397,7 +1397,7 @@ function _buildDocx(btn){
       for(var i=0;i<items.length;i++){
         var item=items[i];
         if(item===null){
-          rows.push(new d.TableRow({children:[new d.TableCell({columnSpan:6,borders:BD,width:{size:CW,type:d.WidthType.DXA},verticalAlign:d.VerticalAlign.CENTER,margins:{top:20,bottom:20,left:57,right:57},children:[p(t("Demonstrates the following values:"))]})]}));
+          rows.push(new d.TableRow({children:[new d.TableCell({columnSpan:6,borders:BD,width:{size:CW,type:d.WidthType.DXA},verticalAlign:d.VerticalAlign.CENTER,margins:{top:0,bottom:0,left:57,right:40},children:[p(t("Demonstrates the following values:"))]})]}));
         } else {
           n++;
           var sel=ratings[sid]&&ratings[sid][ri]?ratings[sid][ri]:0;
@@ -1472,7 +1472,7 @@ function _buildDocx(btn){
     var PP={page:{size:{width:PW,height:PH},margin:{top:MAR,right:MAR,bottom:MAR,left:MAR}}};
 
     var P1=[mkHdr(),
-      p(t("TEACHER\u2019S PERFORMANCE RATING SHEET",{b:true}),{a:d.AlignmentType.CENTER,sb:60,sa:60}),
+      p(t("TEACHER\u2019S PERFORMANCE RATING SHEET",{b:true}),{a:d.AlignmentType.CENTER}),
       iRow2("Name of Teacher:  ",name,"Advisory Class:  ",cls),
       iRowF("Subjects & Grade Levels Handled:  ",subj),
       iRow3("School Year:  ",sy,"Quarter:  ",qtr,"Date Observed:  ",dobs),
@@ -1496,7 +1496,23 @@ function _buildDocx(btn){
         p([t("                             Name & Signature of Teacher")])
       ]);
 
-    var doc=new d.Document({sections:[{properties:PP,children:P1},{properties:PP,children:P2}]});
+    var doc=new d.Document({
+    styles:{
+      default:{
+        document:{
+          run:{font:"Calibri",size:24},
+          paragraph:{spacing:{before:0,after:0,line:240,lineRule:d.LineRuleType.EXACT},contextualSpacing:true}
+        },
+        normal:{
+          run:{font:"Calibri",size:24},
+          paragraph:{spacing:{before:0,after:0,line:240,lineRule:d.LineRuleType.EXACT}}
+        }
+      },
+      paragraphStyles:[
+        {id:"Normal",name:"Normal",run:{font:"Calibri",size:24},paragraph:{spacing:{before:0,after:0,line:240,lineRule:d.LineRuleType.EXACT}}}
+      ]
+    },
+    sections:[{properties:PP,children:P1},{properties:PP,children:P2}]});
     d.Packer.toBlob(doc).then(function(blob){
       var url=URL.createObjectURL(blob);
       var a=document.createElement("a");
