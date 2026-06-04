@@ -1315,10 +1315,59 @@ function saveWord(){
   var rj={};
   ["s1","s2","s3","s4"].forEach(function(sid){rj[sid]={};Object.keys(ratings[sid]).forEach(function(k){rj[sid][String(k)]=ratings[sid][k];});});
   var payload={ratings:rj,info:{name:name,cls:cls,subj:subj,sy:sy,quarter:quarter,dateobs:dateobs,rater:rater,ptitle:ptitle,ratedate:ratedate,recv:recv,remarks:remarks,r1:{score:r1.score,avg:r1.avg,sub:r1.sub,desc:r1.desc},r2:{score:r2.score,avg:r2.avg,sub:r2.sub,desc:r2.desc},r3:{score:r3.score,avg:r3.avg,sub:r3.sub,desc:r3.desc},r4:{score:r4.score,avg:r4.avg,sub:r4.sub,desc:r4.desc},total:total,totalDesc:getDesc(total)}};
-  fetch(window.location.protocol==="file:"?"http://localhost:5050/generate-docx":"/generate-docx",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+  fetch("http://localhost:5050/generate-docx",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
   .then(function(res){if(!res.ok)throw new Error("Server error "+res.status);return res.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="GLA_Teacher_Performance_Rating.docx";a.click();URL.revokeObjectURL(url);if(btn){btn.textContent="Word";btn.disabled=false;}})
   .catch(function(err){if(btn){btn.textContent="Word";btn.disabled=false;}if(err.message.indexOf("fetch")>=0||err.message.indexOf("Network")>=0){alert("Word server not running.\n\nSteps to enable:\n1. Open terminal in VS Code\n2. Run: pip install flask flask-cors python-docx\n3. Run: python server.py\n4. Click Save as Word again");}else{alert("Error: "+err.message);}});
+}
+
+
+// ============================================================
+// QR CODE
+// ============================================================
+function showQR(){
+  var webUrl = (window.location.protocol === "file:" ? "http://localhost:5050" : window.location.origin + window.location.pathname);
+  document.getElementById("qr-web-url").textContent = webUrl;
+  document.getElementById("qr-modal").classList.add("open");
+
+  function loadQR(cb){
+    if(typeof QRCode !== "undefined"){ cb(); return; }
+    var s = document.getElementById("qrjs");
+    if(!s){
+      s = document.createElement("script");
+      s.id = "qrjs";
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+      s.onload = cb;
+      document.head.appendChild(s);
+    } else { setTimeout(function(){ if(typeof QRCode!=="undefined") cb(); else setTimeout(cb,800); }, 200); }
+  }
+
+  loadQR(function(){
+    // QR 1: Web App URL (black)
+    var webDiv = document.getElementById("qr-web");
+    webDiv.innerHTML = "";
+    try {
+      new QRCode(webDiv, { text: webUrl, width: 160, height: 160, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+    } catch(e){ webDiv.innerHTML = "<p style='font-size:11px;color:#666;padding:10px;'>QR unavailable</p>"; }
+
+    // QR 2: Rating sheet summary (red)
+    var sheetDiv = document.getElementById("qr-sheet");
+    sheetDiv.innerHTML = "";
+    try {
+      var name = document.getElementById("i-name") ? document.getElementById("i-name").value : "";
+      var r1 = calcSec("s1",0.40); var r2 = calcSec("s2",0.20);
+      var r3 = calcSec("s3",0.20); var r4 = calcSec("s4",0.20);
+      var total = +(r1.sub+r2.sub+r3.sub+r4.sub).toFixed(2);
+      var summary = webUrl + "?t=" + encodeURIComponent(name||"GLA Rating") + "&score=" + total;
+      new QRCode(sheetDiv, { text: summary, width: 160, height: 160, colorDark: "#b71c1c", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+    } catch(e){ sheetDiv.innerHTML = "<p style='font-size:11px;color:#666;padding:10px;'>QR unavailable</p>"; }
+  });
+}
+
+function copyWebUrl(){
+  var url = (window.location.protocol === "file:" ? "http://localhost:5050" : window.location.origin + window.location.pathname);
+  if(navigator.clipboard){ navigator.clipboard.writeText(url).then(function(){ toast("Link copied!","success"); }); }
+  else { var i=document.createElement("input"); i.value=url; document.body.appendChild(i); i.select(); document.execCommand("copy"); document.body.removeChild(i); toast("Link copied!","success"); }
 }
 
 
