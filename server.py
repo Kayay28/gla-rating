@@ -97,10 +97,6 @@ def make_doc(data):
 def index():
     return send_from_directory(".", "index.html")
 
-@app.route("/<path:filename>")
-def static_files(filename):
-    return send_from_directory(".", filename)
-
 @app.route("/generate-docx", methods=["POST","OPTIONS"])
 def generate_docx():
     if request.method == "OPTIONS":
@@ -120,6 +116,10 @@ def generate_docx():
 @app.route("/health")
 def health():
     return jsonify({"status": "ok"})
+@app.route("/<path:filename>")
+def static_files(filename):
+    return send_from_directory(".", filename)
+
 
 def open_browser():
     time.sleep(1.5)
