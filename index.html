@@ -1360,20 +1360,18 @@ function _wordViaBrowser(btn){
     var d=(typeof docx!=="undefined")?docx:window.docx;
     if(!d||!d.BorderStyle){alert("Word library not ready. Try again.");if(btn){btn.textContent="Word";btn.disabled=false;}return;}
 
-    // Legal: 21.59cm x 33.02cm | Margins: 1.27cm | Calibri 11pt | Line: EXACT 1.0
-    var CM=567,PW=Math.round(21.59*CM),PH=Math.round(33.02*CM),MAR=Math.round(1.27*CM);
-    var CW=PW-MAR*2;
+    // Legal 21.59x33.02cm | 1.27cm margins | Calibri 11pt | EXACT 1.0 line | 0 cell padding
+    var CM=567,PW=Math.round(21.59*CM),PH=Math.round(33.02*CM),MAR=Math.round(1.27*CM),CW=PW-MAR*2;
     var C0=Math.round(12.723*CM),C1=Math.round(1.263*CM),C2=Math.round(1.422*CM),C3=Math.round(1.106*CM),C4=Math.round(1.265*CM),C5=CW-C0-C1-C2-C3-C4;
     var S0=Math.round(8.922*CM),S1=Math.round(1.429*CM),S2=Math.round(2.064*CM),S3=Math.round(2.381*CM),S4=CW-S0-S1-S2-S3;
     var L0=Math.round(6.509*CM),L1=Math.round(6.191*CM),L2=CW-L0-L1;
-
     var NB={style:d.BorderStyle.NONE,size:0,color:"FFFFFF"};
     var CB={style:d.BorderStyle.SINGLE,size:4,color:"000000"};
     var BD={top:CB,bottom:CB,left:CB,right:CB};
     var NI={top:NB,bottom:NB,left:NB,right:NB};
 
-    // 11pt=22 half-points, EXACT line spacing=240
-    function t(tx,o){o=o||{};return new d.TextRun({text:String(tx),font:"Calibri",size:o.sz||22,bold:!!o.b,italics:!!o.i,underline:o.ul?{type:d.UnderlineType.SINGLE}:undefined,color:o.col||"000000"});}
+    // 11pt = 22 half-points, EXACT line spacing = 240 twips
+    function t(tx,o){o=o||{};return new d.TextRun({text:String(tx),font:"Calibri",size:o.sz||22,bold:!!o.b,color:o.col||"000000"});}
     function p(ch,o){o=o||{};if(!Array.isArray(ch))ch=[ch];return new d.Paragraph({alignment:o.a||d.AlignmentType.LEFT,spacing:{before:0,after:0,line:240,lineRule:d.LineRuleType.EXACT},children:ch});}
     function mc(ch,w,b,va){if(!Array.isArray(ch))ch=[ch];return new d.TableCell({borders:b||BD,width:{size:w,type:d.WidthType.DXA},verticalAlign:va||d.VerticalAlign.CENTER,margins:{top:0,bottom:0,left:57,right:40},children:ch});}
     function mn(ch,w,va){return mc(ch,w,NI,va||d.VerticalAlign.CENTER);}
@@ -1395,7 +1393,7 @@ function _wordViaBrowser(btn){
     function b2a(b){var bin=atob(b),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
     var logo=b2a(LB);
 
-    // Header
+    // Header table
     var H0=Math.round(CW*0.12),H1=Math.round(CW*0.03),H2=CW-H0-H1;
     var hdr=new d.Table({width:{size:CW,type:d.WidthType.DXA},columnWidths:[H0,H1,H2],
       borders:{top:NB,bottom:NB,left:NB,right:NB,insideH:NB,insideV:NB},
@@ -1405,26 +1403,24 @@ function _wordViaBrowser(btn){
         mn([p(t("GreAtMinds Leadership Academy",{b:true,sz:48,col:"C0392B"}),{a:d.AlignmentType.LEFT})],H2,d.VerticalAlign.CENTER)
       ]})]});
 
-    function ul_field(label, val, ul_len){
-      var v=String(val||""); var pad=v.length<ul_len?v+"_".repeat(ul_len-v.length):v;
-      return [t(label,{b:true}),t(pad)];
-    }
+    // Info field with underscores
+    function uf(label,val,w){var v=String(val||"");return [t(label,{b:true}),t((v+Array(Math.max(1,w-v.length+1)).join("_")))]; }
 
+    // Section table
     function mkSec(title,items,sid){
-      var rows=[];
-      rows.push(new d.TableRow({children:[
-        mc([p(t(title,{b:true}),{a:d.AlignmentType.LEFT})],C0),
+      var rows=[new d.TableRow({children:[
+        mc([p(t(title,{b:true}))],C0),
         mc([p(t("5(O)",{b:true}),{a:d.AlignmentType.CENTER})],C1),
         mc([p(t("4(VS)",{b:true}),{a:d.AlignmentType.CENTER})],C2),
         mc([p(t("3(S)",{b:true}),{a:d.AlignmentType.CENTER})],C3),
         mc([p(t("2(NI)",{b:true}),{a:d.AlignmentType.CENTER})],C4),
         mc([p(t("1(P)",{b:true}),{a:d.AlignmentType.CENTER})],C5)
-      ]}));
+      ]})];
       var n=0,ri=0;
       for(var i=0;i<items.length;i++){
         var item=items[i];
         if(item===null){
-          rows.push(new d.TableRow({children:[new d.TableCell({columnSpan:6,borders:BD,width:{size:CW,type:d.WidthType.DXA},verticalAlign:d.VerticalAlign.CENTER,margins:{top:0,bottom:0,left:57,right:40},children:[p(t("Demonstrates the following values:"))]})]})  );
+          rows.push(new d.TableRow({children:[new d.TableCell({columnSpan:6,borders:BD,width:{size:CW,type:d.WidthType.DXA},verticalAlign:d.VerticalAlign.CENTER,margins:{top:0,bottom:0,left:57,right:40},children:[p(t("Demonstrates the following values:"))]})]}));
         } else {
           n++;var sel=ratings[sid]&&ratings[sid][ri]?ratings[sid][ri]:0;
           rows.push(new d.TableRow({children:[
@@ -1440,9 +1436,14 @@ function _wordViaBrowser(btn){
       return new d.Table({width:{size:CW,type:d.WidthType.DXA},columnWidths:[C0,C1,C2,C3,C4,C5],rows:rows});
     }
 
+    // Score line - NO underline formatting, just plain text
     function mkScore(r,pct){
-      var sc=String(r.score),av=String(r.avg),de=String(r.desc),su=String(r.sub);
-      return p([t("Score:",{b:true}),t(" "+sc.ljust?sc:sc),t("  "),t("Average:",{b:true}),t(" "+av),t("  "),t("Description:",{b:true}),t(" "+de),t("  "),t("Sub-Rating (AVG x "+pct+"):",{b:true}),t(" "+su)]);
+      return p([
+        t("Score: ",{b:true}),t(String(r.score)),
+        t("     Average: ",{b:true}),t(String(r.avg)),
+        t("     Description: ",{b:true}),t(String(r.desc)),
+        t("     Sub-Rating (AVG x "+pct+"): ",{b:true}),t(String(r.sub))
+      ]);
     }
 
     var SEC1=["Adopts objectives of syllabi and curricula","Selects content and prepares appropriate instructional materials & visual aids","Adopts appropriate teaching methods","Relates new lesson with students\u2019 previous knowledge and skills","Provides appropriate motivation","Presents and develops lessons","Conveys ideas clearly","Utilizes the art of questioning to develop higher level of thinking","Ensures students\u2019 participation","Addresses individual differences","Shows mastery of the subject matter","Diagnoses learner\u2019s needs","Evaluates learning outcomes","Differentiates instruction to suit students\u2019 needs","Uses a variety of effective instructional strategies and resources","Involves students in cooperative learning to enhance higher-order thinking skills","Uses a variety of formal and informal assessment strategies to guide instruction","Gives constructive and frequent feedback to students on their learning","Provides independent practice activities","Checks for understanding and adjusts instruction as needed","English oral communication skills","English written communication skills"];
@@ -1451,12 +1452,11 @@ function _wordViaBrowser(btn){
     var SEC4=["Adheres to school policies and guidelines at all times","Exerts effort to improve one\u2019s knowledge and skills","Takes responsibility for his/her actions","Channels concerns to proper authorities and not in social media nor to other people who are not of concern","Observes professional ethics","Is punctual in reporting to school and in submitting requirements","Is not often absent; when absent, only for valid reasons","Willingly accepts and satisfactorily performs tasks or assignments assigned to him/her, like committee work for co-curricular activities","Does not participate in rumor mongering","Wears the prescribed uniform at all times.",null,"Honesty/Integrity","Initiative/Resourcefulness","Courtesy","Respect for Authority","Teamwork","Leadership","Stress Tolerance","Fairness/Justice","Good Grooming","Human Relations","Self Confidence"];
 
     var PP={page:{size:{width:PW,height:PH},margin:{top:MAR,right:MAR,bottom:MAR,left:MAR}}};
-    var defaultStyle={styles:{default:{document:{run:{font:"Calibri",size:22},paragraph:{spacing:{before:0,after:0,line:240,lineRule:d.LineRuleType.EXACT}}}}}};
 
     var P1=[hdr,
       p([t("TEACHER\u2019S PERFORMANCE RATING SHEET",{b:true})],{a:d.AlignmentType.CENTER}),
-      p(ul_field("Name of Teacher: ",name,30).concat([t("     ")]).concat(ul_field("Advisory Class: ",cls,22))),
-      p(ul_field("Subjects & Grade Levels Handled: ",subj,28).concat([t("  ")]).concat(ul_field("Date Observed: ",dobs,22))),
+      p(uf("Name of Teacher: ",name,32).concat([t("     ")]).concat(uf("Advisory Class: ",cls,22))),
+      p(uf("Subjects & Grade Levels Handled: ",subj,26).concat([t("  ")]).concat(uf("Date Observed: ",dobs,20))),
       p([t("Legend:",{b:true})]),
       p([t("5 \u2013 Outstanding     4 \u2013 Very Satisfactory     3 \u2013 Satisfactory     2 \u2013 Needs Improvement     1 - Poor")]),
       mkSec("I.  INSTRUCTIONAL COMPETENCE (40%)",SEC1,"s1"),
@@ -1465,39 +1465,52 @@ function _wordViaBrowser(btn){
       mkScore(r2,"20%")
     ];
 
+    var sumRows=[
+      new d.TableRow({children:[mc([p(t("Key Areas",{b:true}),{a:d.AlignmentType.CENTER})],S0),mc([p(t("Score",{b:true}),{a:d.AlignmentType.CENTER})],S1),mc([p(t("Average",{b:true}),{a:d.AlignmentType.CENTER})],S2),mc([p(t("Sub-Rating",{b:true}),{a:d.AlignmentType.CENTER})],S3),mc([p(t("Description",{b:true}),{a:d.AlignmentType.CENTER})],S4)]}),
+      new d.TableRow({children:[mc([p(t("Instructional Competence (40%)"))],S0),mc([p(t(String(r1.score)),{a:d.AlignmentType.CENTER})],S1),mc([p(t(String(r1.avg)),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(r1.sub)),{a:d.AlignmentType.CENTER})],S3),mc([p(t(r1.desc))],S4)]}),
+      new d.TableRow({children:[mc([p(t("Learning Environment (20%)"))],S0),mc([p(t(String(r2.score)),{a:d.AlignmentType.CENTER})],S1),mc([p(t(String(r2.avg)),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(r2.sub)),{a:d.AlignmentType.CENTER})],S3),mc([p(t(r2.desc))],S4)]}),
+      new d.TableRow({children:[mc([p(t("Interpersonal Relations (20%)"))],S0),mc([p(t(String(r3.score)),{a:d.AlignmentType.CENTER})],S1),mc([p(t(String(r3.avg)),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(r3.sub)),{a:d.AlignmentType.CENTER})],S3),mc([p(t(r3.desc))],S4)]}),
+      new d.TableRow({children:[mc([p(t("Professionalism & Personal Characteristics (20%)"))],S0),mc([p(t(String(r4.score)),{a:d.AlignmentType.CENTER})],S1),mc([p(t(String(r4.avg)),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(r4.sub)),{a:d.AlignmentType.CENTER})],S3),mc([p(t(r4.desc))],S4)]}),
+      new d.TableRow({children:[mc([p(t("Total",{b:true}),{a:d.AlignmentType.RIGHT})],S0),mc([p(t(""))],S1),mc([p(t(""))],S2),mc([p(t(String(total),{b:true}),{a:d.AlignmentType.CENTER})],S3),mc([p(t(getDesc(total),{b:true}))],S4)]})
+    ];
+
     var P2=[
       mkSec("III.  INTERPERSONAL RELATIONS (20%)",SEC3,"s3"),
       mkScore(r3,"20%"),
       mkSec("IV.  PROFESSIONALISM & PERSONAL CHARACTERISTICS (20%)",SEC4,"s4"),
       mkScore(r4,"20%"),
       p([t("Legend: ",{b:true})]),
-      new d.Table({width:{size:CW,type:d.WidthType.DXA},columnWidths:[L0,L1,L2],borders:{top:NB,bottom:NB,left:NB,right:NB,insideH:NB,insideV:NB},rows:[
-        new d.TableRow({children:[mn([p([t("1.0 to 1.59  ",{b:true}),t("Poor")])],L0),mn([p([t("2.6 to 3.59  ",{b:true}),t("Satisfactory")])],L1),mn([p([t("4.6 to 5.0  ",{b:true}),t("Outstanding")])],L2)]}),
-        new d.TableRow({children:[mn([p([t("1.6 to 2.59  ",{b:true}),t("Needs Improvement")])],L0),mn([p([t("3.6 to 4.59  ",{b:true}),t("Very Satisfactory")])],L1),mn([p(t(""))],L2)]})
-      ]}),
+      new d.Table({width:{size:CW,type:d.WidthType.DXA},columnWidths:[L0,L1,L2],
+        borders:{top:NB,bottom:NB,left:NB,right:NB,insideH:NB,insideV:NB},
+        rows:[
+          new d.TableRow({children:[mn([p([t("1.0 to 1.59  ",{b:true}),t("Poor")])],L0),mn([p([t("2.6 to 3.59  ",{b:true}),t("Satisfactory")])],L1),mn([p([t("4.6 to 5.0  ",{b:true}),t("Outstanding")])],L2)]}),
+          new d.TableRow({children:[mn([p([t("1.6 to 2.59  ",{b:true}),t("Needs Improvement")])],L0),mn([p([t("3.6 to 4.59  ",{b:true}),t("Very Satisfactory")])],L1),mn([p(t(""))],L2)]})
+        ]}),
       p([t("Summary of Scores:",{b:true})]),
-      new d.Table({width:{size:CW,type:d.WidthType.DXA},columnWidths:[S0,S1,S2,S3,S4],rows:[
-        new d.TableRow({children:[mc([p(t("Key Areas",{b:true}),{a:d.AlignmentType.CENTER})],S0),mc([p(t("Score",{b:true}),{a:d.AlignmentType.CENTER})],S1),mc([p(t("Average",{b:true}),{a:d.AlignmentType.CENTER})],S2),mc([p(t("Sub-Rating",{b:true}),{a:d.AlignmentType.CENTER})],S3),mc([p(t("Description",{b:true}),{a:d.AlignmentType.CENTER})],S4)]}),
-        new d.TableRow({children:[mc([p(t("Instructional Competence (40%)"))],S0),mc([p(t(String(r1.score)),{a:d.AlignmentType.CENTER})],S1),mc([p(t(String(r1.avg)),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(r1.sub)),{a:d.AlignmentType.CENTER})],S3),mc([p(t(r1.desc))],S4)]}),
-        new d.TableRow({children:[mc([p(t("Learning Environment (20%)"))],S0),mc([p(t(String(r2.score)),{a:d.AlignmentType.CENTER})],S1),mc([p(t(String(r2.avg)),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(r2.sub)),{a:d.AlignmentType.CENTER})],S3),mc([p(t(r2.desc))],S4)]}),
-        new d.TableRow({children:[mc([p(t("Interpersonal Relations (20%)"))],S0),mc([p(t(String(r3.score)),{a:d.AlignmentType.CENTER})],S1),mc([p(t(String(r3.avg)),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(r3.sub)),{a:d.AlignmentType.CENTER})],S3),mc([p(t(r3.desc))],S4)]}),
-        new d.TableRow({children:[mc([p(t("Professionalism & Personal Characteristics (20%)"))],S0),mc([p(t(String(r4.score)),{a:d.AlignmentType.CENTER})],S1),mc([p(t(String(r4.avg)),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(r4.sub)),{a:d.AlignmentType.CENTER})],S3),mc([p(t(r4.desc))],S4)]}),
-        new d.TableRow({children:[mc([p(t("Total",{b:true}),{a:d.AlignmentType.RIGHT})],S0),mc([p(t(""),{a:d.AlignmentType.CENTER})],S1),mc([p(t(""),{a:d.AlignmentType.CENTER})],S2),mc([p(t(String(total),{b:true}),{a:d.AlignmentType.CENTER})],S3),mc([p(t(getDesc(total),{b:true}))],S4)]})
-      ]}),
-      p([t("Rated by: ",{b:true}),t(rater+"  ______________________                        "),t("Date: ",{b:true}),t(rdx)]),
+      new d.Table({width:{size:CW,type:d.WidthType.DXA},columnWidths:[S0,S1,S2,S3,S4],rows:sumRows}),
+      p([t("Rated by: ",{b:true}),t(rater),t("  ______________________                        "),t("Date: ",{b:true}),t(rdx)]),
       p([t("                              "+ptitle)]),
-      p([t("Copy received by: ",{b:true}),t(recv+"  ________________________________          "),t("Date: ",{b:true}),t("_____________________")]),
+      p([t("Copy received by: ",{b:true}),t(recv),t("  ________________________________          "),t("Date: ",{b:true}),t("_____________________")]),
       p([t("                             Name & Signature of Teacher")])
     ];
 
-    var doc=new d.Document(Object.assign({sections:[{properties:PP,children:P1},{properties:PP,children:P2}]},defaultStyle));
-    d.Packer.toBlob(doc).then(function(blob){
-      var url=URL.createObjectURL(blob);var a=document.createElement("a");
-      a.href=url;a.download="GLA_Teacher_Performance_Rating.docx";a.click();URL.revokeObjectURL(url);
-      if(btn){btn.textContent="Word";btn.disabled=false;}
-      toast("Word file downloaded! (Open start.bat for server-based 2-page version)","success");
+    var doc=new d.Document({
+      styles:{default:{document:{run:{font:"Calibri",size:22},paragraph:{spacing:{before:0,after:0,line:240,lineRule:d.LineRuleType.EXACT}}}}},
+      sections:[{properties:PP,children:P1},{properties:PP,children:P2}]
     });
-  }catch(e){alert("Error: "+e.message);if(btn){btn.textContent="Word";btn.disabled=false;}}
+
+    d.Packer.toBlob(doc).then(function(blob){
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement("a");
+      a.href=url;a.download="GLA_Teacher_Performance_Rating.docx";a.click();
+      URL.revokeObjectURL(url);
+      if(btn){btn.textContent="Word";btn.disabled=false;}
+    });
+  }catch(e){
+    alert("Error: "+e.message);
+    console.error(e);
+    if(btn){btn.textContent="Word";btn.disabled=false;}
+  }
 }
 
 
