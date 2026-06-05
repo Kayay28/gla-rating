@@ -36,15 +36,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min
 .login-page::before{
   content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;
   border-radius:50%;background:radial-gradient(circle,rgba(192,57,43,.2) 0%,transparent 70%);
+
+  pointer-events:none;
 }
 .login-page::after{
   content:'';position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;
   border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.1) 0%,transparent 70%);
+
+  pointer-events:none;
 }
 .login-card{
   background:rgba(255,255,255,.97);border-radius:24px;padding:40px;
   width:100%;max-width:420px;box-shadow:var(--sh4);position:relative;z-index:1;
-  animation:loginIn .4s cubic-bezier(.34,1.56,.64,1);
+  animation:loginIn .4s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:10;
 }
 .login-logo{text-align:center;margin-bottom:28px;}
 .login-logo img{width:72px;height:72px;border-radius:18px;box-shadow:var(--sh-red);}
@@ -469,6 +473,13 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
 #viewer-badge { background: var(--green) !important; }
 /* Admin-only CSS */
 body[data-role="user"] .admin-only-el { display: none !important; }
+
+/* Role buttons as actual buttons */
+button.role-btn{
+  width:100%;font-family:inherit;outline:none;
+  -webkit-tap-highlight-color:rgba(192,57,43,.2);
+}
+button.role-btn:focus{border-color:var(--red);}
 </style>
 </head>
 <body>
@@ -510,7 +521,7 @@ body[data-role="user"] .admin-only-el { display: none !important; }
     <div style="text-align:center;margin-top:12px;">
       <button onclick="guestLogin()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;">
         Continue without password →
-      </button>
+      </div>
     </div>
     <div class="login-footer" style="margin-top:8px;">
       Admin: <b>admin123</b> &nbsp;&bull;&nbsp; User: <b>user123</b><br>
@@ -1305,32 +1316,59 @@ function initRatingForm(){
 }
 
 function buildSections(){
-  var html='';
+  var wrap=document.getElementById('sections-wrap');
+  wrap.innerHTML='';
   SECTIONS.forEach(function(sec){
-    html+='<div class="section-card">'
-      +'<div class="section-header"><h3>'+sec.title+'</h3>'
+    var card=document.createElement('div');
+    card.className='section-card';
+    // Header
+    var hdr=document.createElement('div');
+    hdr.className='section-header';
+    hdr.innerHTML='<h3>'+sec.title+'</h3>'
       +'<span class="section-badge">'+sec.pct+'</span>'
-      +'<span class="section-progress" id="sp-'+sec.id+'">0/'+sec.items.filter(function(x){return x!==null;}).length+'</span></div>';
+      +'<span class="section-progress" id="sp-'+sec.id+'">0/'
+      +sec.items.filter(function(x){return x!==null;}).length+'</span>';
+    card.appendChild(hdr);
     var ri=0;
-    sec.items.forEach(function(item,i){
+    sec.items.forEach(function(item){
       if(item===null){
-        html+='<div class="subheader-row">Demonstrates the following values:</div>';
+        var sub=document.createElement('div');
+        sub.className='subheader-row';
+        sub.textContent='Demonstrates the following values:';
+        card.appendChild(sub);
         return;
       }
-      var n=ri;var sidRef=sec.id;
-      html+='<div class="rating-item" id="ri-'+sec.id+'-'+n+'">'
-        +'<span class="item-num">'+(ri+1)+'</span>'
-        +'<span class="item-text">'+item+'</span>'
-        +'<div class="rating-btns">';
+      var row=document.createElement('div');
+      row.className='rating-item';
+      row.id='ri-'+sec.id+'-'+ri;
+      var num=document.createElement('span');
+      num.className='item-num';
+      num.textContent=ri+1;
+      var txt=document.createElement('span');
+      txt.className='item-text';
+      txt.textContent=item;
+      var btns=document.createElement('div');
+      btns.className='rating-btns';
       [5,4,3,2,1].forEach(function(v){
-        html+='<button class="rb" onclick="setRating(&#39;&#39;+sec.id+&#39;&#39;,&#39;+n+&#39;,&#39;+v+&#39;)" id="rb-'+sec.id+'-'+n+'-'+v+'" title="'+v+' - '+getDesc(v)+'">'+v+'</button>';
+        var btn=document.createElement('button');
+        btn.className='rb';
+        btn.id='rb-'+sec.id+'-'+ri+'-'+v;
+        btn.title=v+' - '+getDesc(v);
+        btn.textContent=v;
+        btn.type='button';
+        (function(sid,idx,val){
+          btn.onclick=function(){ setRating(sid,idx,val); };
+        })(sec.id,ri,v);
+        btns.appendChild(btn);
       });
-      html+='</div></div>';
+      row.appendChild(num);
+      row.appendChild(txt);
+      row.appendChild(btns);
+      card.appendChild(row);
       ri++;
     });
-    html+='</div>';
+    wrap.appendChild(card);
   });
-  document.getElementById('sections-wrap').innerHTML=html;
 }
 
 function setRating(sid,idx,val){
