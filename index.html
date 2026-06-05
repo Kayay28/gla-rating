@@ -827,13 +827,13 @@ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();def
 
 // ── SECTIONS DATA ──
 var SECTIONS = [
-  {id:"s1",num:1,title:"I.\u00a0 INSTRUCTIONAL COMPETENCE (40%)",weight:0.40,
+  {id:"s1",num:1,title:"I.\u00a0 INSTRUCTIONAL COMPETENCE (40%)",pct:"40%",weight:0.40,
    items:["Adopts objectives of syllabi and curricula","Selects content and prepares appropriate instructional materials & visual aids","Adopts appropriate teaching methods","Relates new lesson with students\u2019 previous knowledge and skills","Provides appropriate motivation","Presents and develops lessons","Conveys ideas clearly","Utilizes the art of questioning to develop higher level of thinking","Ensures students\u2019 participation","Addresses individual differences","Shows mastery of the subject matter","Diagnoses learner\u2019s needs","Evaluates learning outcomes","Differentiates instruction to suit students\u2019 needs","Uses a variety of effective instructional strategies and resources","Involves students in cooperative learning to enhance higher-order thinking skills","Uses a variety of formal and informal assessment strategies to guide instruction","Gives constructive and frequent feedback to students on their learning","Provides independent practice activities","Checks for understanding and adjusts instruction as needed","English oral communication skills","English written communication skills"]},
-  {id:"s2",num:2,title:"II.\u00a0 LEARNING ENVIRONMENT (20%)",weight:0.20,
+  {id:"s2",num:2,title:"II.\u00a0 LEARNING ENVIRONMENT (20%)",pct:"20%",weight:0.20,
    items:["Maintains a clean and orderly classroom","Maintains a classroom conducive to learning","Establishes clear expectations for classroom rules and procedures early in the school year and enforces them consistently and fairly","Maximizes instructional time.","Establishes a climate of trust and teamwork by being fair, caring, respectful, and enthusiastic","Respects students\u2019 diversity, including language, culture, race, gender and special needs","Cares about students as individuals and makes them feel valued","Promotes self-discipline","Manages disruptive behaviour, distractions and misconduct well.","Keeps criticisms fair, objective and minimal"]},
-  {id:"s3",num:3,title:"III.\u00a0 INTERPERSONAL RELATIONS (20%)",weight:0.20,
+  {id:"s3",num:3,title:"III.\u00a0 INTERPERSONAL RELATIONS (20%)",pct:"20%",weight:0.20,
    items:["Supports and participates in parent-teacher activities","Works well with the other teachers and administration","Has positive relationships with students individually and in groups","Provides a climate which opens up communication between the teacher and the parent","Uses discretion in handling confidential information and difficult situations","Informs administrators and/or appropriate personnel of school-related matters in a timely manner","Cooperates with parents in the best interest of students","Acknowledges rights of others to hold different views","Handles information about students\u2019 private lives in a proper manner","Has a positive disposition and attitude"]},
-  {id:"s4",num:4,title:"IV.\u00a0 PROFESSIONALISM & PERSONAL CHARACTERISTICS (20%)",weight:0.20,
+  {id:"s4",num:4,title:"IV.\u00a0 PROFESSIONALISM & PERSONAL CHARACTERISTICS (20%)",pct:"20%",weight:0.20,
    items:["Adheres to school policies and guidelines at all times","Exerts effort to improve one\u2019s knowledge and skills","Takes responsibility for his/her actions","Channels concerns to proper authorities and not in social media nor to other people who are not of concern","Observes professional ethics","Is punctual in reporting to school and in submitting requirements","Is not often absent; when absent, only for valid reasons","Willingly accepts and satisfactorily performs tasks or assignments assigned to him/her, like committee work for co-curricular activities","Does not participate in rumor mongering","Wears the prescribed uniform at all times.",null,"Honesty/Integrity","Initiative/Resourcefulness","Courtesy","Respect for Authority","Teamwork","Leadership","Stress Tolerance","Fairness/Justice","Good Grooming","Human Relations","Self Confidence"]}
 ];
 
@@ -1016,7 +1016,7 @@ function renderDashboard(){
   // Recent ratings
   var rl=document.getElementById('recent-list');
   if(!hist.length){
-    rl.innerHTML='<div class="empty-state"><div class="es-icon">📋</div><div class="es-title">No ratings yet</div><div class="es-sub"><button class="btn btn-primary btn-sm" onclick="showPage('new-rating')" style="margin-top:8px;">+ Create First Rating</button></div></div>';
+    rl.innerHTML='<div class="empty-state"><div class="es-icon">📋</div><div class="es-title">No ratings yet</div><div class="es-sub"><button class="btn btn-primary btn-sm" onclick="showPage(&#39;new-rating&#39;)" style="margin-top:8px;">+ Create First Rating</button></div></div>';
   } else {
     rl.innerHTML=hist.slice(0,5).map(function(r){
       return '<div class="ri"><div class="ri-av" style="background:'+getAvatarColor(r.name)+'">'+getInitials(r.name)+'</div>'
@@ -1085,7 +1085,7 @@ function renderHistory(){
       +'<td>'+r.advisoryClass+'</td>'
       +'<td>'+r.sy+'</td>'
       +'<td>'+r.quarter+'</td>'
-      +'<td><b style="font-family:'Plus Jakarta Sans',sans-serif;">'+r.total+'</b></td>'
+      +'<td><b style="font-family:Plus Jakarta Sans,sans-serif;">'+r.total+'</b></td>'
       +'<td><span class="score-pill '+getDescClass(r.totalDesc)+'">'+r.totalDesc+'</span></td>'
       +'<td style="color:var(--muted);font-size:12px;">'+r.dateRated+'</td>'
       +'<td><div style="display:flex;gap:6px;">'
@@ -1106,24 +1106,58 @@ function deleteRating(idx){
 // ── TEACHERS ──
 function renderTeachers(){
   var search=(document.getElementById('t-search')||{}).value||'';
-  var filtered=teachers.filter(function(t){return !search||t.name.toLowerCase().includes(search.toLowerCase())||((t.dept||'').toLowerCase().includes(search.toLowerCase()));}); 
+  var filtered=teachers.filter(function(t){
+    return !search||t.name.toLowerCase().includes(search.toLowerCase())||((t.dept||'').toLowerCase().includes(search.toLowerCase()));
+  });
   var grid=document.getElementById('teachers-grid');
+  grid.innerHTML='';
   if(!filtered.length){
-    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><div class="es-icon">🏫</div><div class="es-title">'+(teachers.length?'No results found':'No teachers yet')+'</div><div class="es-sub">'+(teachers.length?'Try a different search':'Click Add Teacher to get started')+'</div></div>';
+    var em=document.createElement('div');
+    em.className='empty-state';
+    em.style.gridColumn='1/-1';
+    em.innerHTML='<div class="es-icon">&#127979;</div><div class="es-title">'+(teachers.length?'No results':'No teachers yet')+'</div>';
+    grid.appendChild(em);
     return;
   }
-  grid.innerHTML=filtered.map(function(t,i){
+  filtered.forEach(function(t){
     var origIdx=teachers.indexOf(t);
-    var tRatings=hist.filter(function(r){return r.name===t.name;});
-    var avg=tRatings.length?((tRatings.reduce(function(s,r){return s+parseFloat(r.total);},0)/tRatings.length).toFixed(2)):'-';
-    return '<div class="teacher-card">'
-      +'<div class="tc-head"><div class="tc-av" style="background:'+getAvatarColor(t.name)+'">'+getInitials(t.name)+'</div>'
-      +'<div class="tc-info"><div class="name">'+t.name+'</div><div class="dept">'+(t.dept||'No department')+(t.advisoryClass?' &bull; '+t.advisoryClass:'')+'</div></div></div>'
-      +'<div class="tc-stats"><div class="tc-stat"><div class="sv">'+avg+'</div><div class="lb">Avg Score</div></div>'
-      +'<div class="tc-stat"><div class="sv">'+tRatings.length+'</div><div class="lb">Ratings</div></div></div>'
-      +(currentRole==='admin'?'<div style="display:flex;gap:6px;margin-left:8px;"><button class="btn btn-primary btn-xs" onclick="quickRate(''+t.name.replace(/'/g,"\'")+'')" title="Rate">✏️</button><button class="btn btn-danger btn-xs" onclick="deleteTeacher('+origIdx+')" title="Delete">🗑️</button></div>':'')
-      +'</div>';
-  }).join('');
+    var tR=hist.filter(function(r){return r.name===t.name;});
+    var avg=tR.length?(tR.reduce(function(s,r){return s+parseFloat(r.total);},0)/tR.length).toFixed(2):'-';
+    var card=document.createElement('div');
+    card.className='teacher-card';
+    var head=document.createElement('div');
+    head.className='tc-head';
+    var av=document.createElement('div');
+    av.className='tc-av';
+    av.style.background=getAvatarColor(t.name);
+    av.textContent=getInitials(t.name);
+    var info=document.createElement('div');
+    info.className='tc-info';
+    info.innerHTML='<div class="name">'+t.name+'</div><div class="dept">'+(t.dept||'No dept')+'</div>';
+    head.appendChild(av);
+    head.appendChild(info);
+    card.appendChild(head);
+    var stats=document.createElement('div');
+    stats.className='tc-stats';
+    stats.innerHTML='<div class="tc-stat"><div class="sv">'+avg+'</div><div class="lb">Avg</div></div><div class="tc-stat"><div class="sv">'+tR.length+'</div><div class="lb">Ratings</div></div>';
+    card.appendChild(stats);
+    if(currentRole==='admin'){
+      var acts=document.createElement('div');
+      acts.style.cssText='display:flex;gap:6px;margin-left:8px;flex-shrink:0;';
+      var rb=document.createElement('button');
+      rb.className='btn btn-primary btn-xs';
+      rb.textContent='Rate';
+      (function(n){rb.onclick=function(){quickRate(n);};})(t.name);
+      var db=document.createElement('button');
+      db.className='btn btn-danger btn-xs';
+      db.textContent='Del';
+      (function(idx){db.onclick=function(){deleteTeacher(idx);};})(origIdx);
+      acts.appendChild(rb);
+      acts.appendChild(db);
+      card.appendChild(acts);
+    }
+    grid.appendChild(card);
+  });
 }
 
 function doAddTeacher(){
@@ -1271,7 +1305,7 @@ function buildSections(){
         +'<span class="item-text">'+item+'</span>'
         +'<div class="rating-btns">';
       [5,4,3,2,1].forEach(function(v){
-        html+='<button class="rb" onclick="setRating(''+sec.id+'','+n+','+v+')" id="rb-'+sec.id+'-'+n+'-'+v+'" title="'+v+' - '+getDesc(v)+'">'+v+'</button>';
+        html+='<button class="rb" onclick="setRating(&#39;&#39;+sec.id+&#39;&#39;,&#39;+n+&#39;,&#39;+v+&#39;)" id="rb-'+sec.id+'-'+n+'-'+v+'" title="'+v+' - '+getDesc(v)+'">'+v+'</button>';
       });
       html+='</div></div>';
       ri++;
@@ -1610,90 +1644,7 @@ function _wordViaBrowser(btn){
     r4:{score:r4.score,avg:r4.avg,sub:r4.sub,desc:r4.desc},
     total:total,totalDesc:getDesc(total)};
 
-  var pyCode = `
-import sys,json,base64,io,re
-from docx import Document
-from docx.shared import Pt
-from docx.oxml.ns import qn
-from docx.oxml import OxmlElement
-
-data=json.loads(sys.argv[1])
-ratings=data.get("ratings",{})
-info=data.get("info",{})
-
-import urllib.request,os,tempfile
-url="https://raw.githubusercontent.com/kayay28/gla-rating/main/template.docx"
-tmp=tempfile.mktemp(suffix=".docx")
-try:
-  urllib.request.urlretrieve(url,tmp)
-  doc=Document(tmp)
-except:
-  doc=Document()
-
-def fill_para(para,vm):
-  pos=0
-  for run in para.runs:
-    if "_" in run.text:
-      if pos in vm:
-        v=str(vm[pos]);m=re.search(r"_+",run.text)
-        if m:
-          ul=len(m.group())
-          run.text=re.sub(r"_+",v.ljust(ul,"_") if len(v)<=ul else v,run.text,count=1)
-      pos+=1
-
-def kt(para):
-  pPr=para._p.get_or_add_pPr()
-  for tag in ["w:keepLines","w:keepNext"]:
-    for ex in pPr.findall(qn(tag)): pPr.remove(ex)
-  pPr.append(OxmlElement("w:keepLines"))
-  pPr.append(OxmlElement("w:keepNext"))
-
-r1=info.get("r1",{}); r2=info.get("r2",{}); r3=info.get("r3",{}); r4=info.get("r4",{})
-total=info.get("total",""); tdesc=info.get("totalDesc","")
-
-try:
-  fill_para(doc.paragraphs[5],{0:info.get("name",""),1:info.get("cls","")})
-  fill_para(doc.paragraphs[7],{0:info.get("subj",""),1:info.get("dateobs","")})
-  for pi,r in [(11,r1),(13,r2),(15,r3),(18,r4)]:
-    fill_para(doc.paragraphs[pi],{0:str(r.get("score","")),1:str(r.get("avg","")),2:str(r.get("desc","")),3:str(r.get("sub",""))})
-  fill_para(doc.paragraphs[23],{0:info.get("rater",""),1:info.get("ratedate","")})
-  for run in doc.paragraphs[24].runs: run.text=run.text.replace("School Head",info.get("ptitle","School Head"))
-  fill_para(doc.paragraphs[25],{0:info.get("recv","")})
-  for pi in [19,20,21,23,24,25,26]:
-    try: kt(doc.paragraphs[pi])
-    except: pass
-  for sid,ti in [("s1",0),("s2",1),("s3",2),("s4",3)]:
-    tbl=doc.tables[ti]; ri2=0
-    for row_idx in range(1,len(tbl.rows)):
-      row=tbl.rows[row_idx]
-      if "Demonstrates" in row.cells[0].text: continue
-      sel=int(ratings.get(sid,{}).get(str(ri2),0))
-      for ci,v in enumerate([5,4,3,2,1]):
-        cell=row.cells[ci+1]; p_el=cell.paragraphs[0]._p
-        for r in p_el.findall(qn("w:r")): p_el.remove(r)
-        run=cell.paragraphs[0].add_run("\u2713" if sel==v else "")
-        run.font.name="Calibri"; run.font.size=Pt(11)
-      ri2+=1
-  st=doc.tables[5]
-  sd=[(r1.get("score",""),r1.get("avg",""),r1.get("sub",""),r1.get("desc","")),
-      (r2.get("score",""),r2.get("avg",""),r2.get("sub",""),r2.get("desc","")),
-      (r3.get("score",""),r3.get("avg",""),r3.get("sub",""),r3.get("desc","")),
-      (r4.get("score",""),r4.get("avg",""),r4.get("sub",""),r4.get("desc","")),
-      ("","",total,tdesc)]
-  for ri3,rd in enumerate(sd):
-    row=st.rows[ri3+1]
-    for ci3,val in enumerate(rd):
-      cell=row.cells[ci3+1]; p_el=cell.paragraphs[0]._p
-      for r in p_el.findall(qn("w:r")): p_el.remove(r)
-      run=cell.paragraphs[0].add_run(str(val))
-      run.font.name="Calibri"; run.font.size=Pt(11)
-      if ri3==4: run.bold=True
-except Exception as e:
-  pass
-
-buf=io.BytesIO(); doc.save(buf); buf.seek(0)
-print(base64.b64encode(buf.read()).decode())
-`;
+  var pyCode = '\nimport sys,json,base64,io,re\nfrom docx import Document\nfrom docx.shared import Pt\nfrom docx.oxml.ns import qn\nfrom docx.oxml import OxmlElement\n\ndata=json.loads(sys.argv[1])\nratings=data.get("ratings",{})\ninfo=data.get("info",{})\n\nimport urllib.request,os,tempfile\nurl="https://raw.githubusercontent.com/kayay28/gla-rating/main/template.docx"\ntmp=tempfile.mktemp(suffix=".docx")\ntry:\n  urllib.request.urlretrieve(url,tmp)\n  doc=Document(tmp)\nexcept:\n  doc=Document()\n\ndef fill_para(para,vm):\n  pos=0\n  for run in para.runs:\n    if "_" in run.text:\n      if pos in vm:\n        v=str(vm[pos]);m=re.search(r"_+",run.text)\n        if m:\n          ul=len(m.group())\n          run.text=re.sub(r"_+",v.ljust(ul,"_") if len(v)<=ul else v,run.text,count=1)\n      pos+=1\n\ndef kt(para):\n  pPr=para._p.get_or_add_pPr()\n  for tag in ["w:keepLines","w:keepNext"]:\n    for ex in pPr.findall(qn(tag)): pPr.remove(ex)\n  pPr.append(OxmlElement("w:keepLines"))\n  pPr.append(OxmlElement("w:keepNext"))\n\nr1=info.get("r1",{}); r2=info.get("r2",{}); r3=info.get("r3",{}); r4=info.get("r4",{})\ntotal=info.get("total",""); tdesc=info.get("totalDesc","")\n\ntry:\n  fill_para(doc.paragraphs[5],{0:info.get("name",""),1:info.get("cls","")})\n  fill_para(doc.paragraphs[7],{0:info.get("subj",""),1:info.get("dateobs","")})\n  for pi,r in [(11,r1),(13,r2),(15,r3),(18,r4)]:\n    fill_para(doc.paragraphs[pi],{0:str(r.get("score","")),1:str(r.get("avg","")),2:str(r.get("desc","")),3:str(r.get("sub",""))})\n  fill_para(doc.paragraphs[23],{0:info.get("rater",""),1:info.get("ratedate","")})\n  for run in doc.paragraphs[24].runs: run.text=run.text.replace("School Head",info.get("ptitle","School Head"))\n  fill_para(doc.paragraphs[25],{0:info.get("recv","")})\n  for pi in [19,20,21,23,24,25,26]:\n    try: kt(doc.paragraphs[pi])\n    except: pass\n  for sid,ti in [("s1",0),("s2",1),("s3",2),("s4",3)]:\n    tbl=doc.tables[ti]; ri2=0\n    for row_idx in range(1,len(tbl.rows)):\n      row=tbl.rows[row_idx]\n      if "Demonstrates" in row.cells[0].text: continue\n      sel=int(ratings.get(sid,{}).get(str(ri2),0))\n      for ci,v in enumerate([5,4,3,2,1]):\n        cell=row.cells[ci+1]; p_el=cell.paragraphs[0]._p\n        for r in p_el.findall(qn("w:r")): p_el.remove(r)\n        run=cell.paragraphs[0].add_run("\\u2713" if sel==v else "")\n        run.font.name="Calibri"; run.font.size=Pt(11)\n      ri2+=1\n  st=doc.tables[5]\n  sd=[(r1.get("score",""),r1.get("avg",""),r1.get("sub",""),r1.get("desc","")),\n      (r2.get("score",""),r2.get("avg",""),r2.get("sub",""),r2.get("desc","")),\n      (r3.get("score",""),r3.get("avg",""),r3.get("sub",""),r3.get("desc","")),\n      (r4.get("score",""),r4.get("avg",""),r4.get("sub",""),r4.get("desc","")),\n      ("","",total,tdesc)]\n  for ri3,rd in enumerate(sd):\n    row=st.rows[ri3+1]\n    for ci3,val in enumerate(rd):\n      cell=row.cells[ci3+1]; p_el=cell.paragraphs[0]._p\n      for r in p_el.findall(qn("w:r")): p_el.remove(r)\n      run=cell.paragraphs[0].add_run(str(val))\n      run.font.name="Calibri"; run.font.size=Pt(11)\n      if ri3==4: run.bold=True\nexcept Exception as e:\n  pass\n\nbuf=io.BytesIO(); doc.save(buf); buf.seek(0)\nprint(base64.b64encode(buf.read()).decode())\n';
 
   fetch("https://api.anthropic.com/v1/messages",{
     method:"POST",
