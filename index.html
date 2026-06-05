@@ -613,8 +613,9 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
       <div id="install-wrap" style="display:none">
         <button class="btn btn-outline btn-sm" onclick="installPWA()">⬇️ Install App</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">🌙</button>
-      <button class="btn btn-primary btn-sm" onclick="showPage('new-rating')">➕ New Rating</button>
+      <div id="viewer-badge" style="display:none;background:#059669;color:#fff;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;align-items:center;gap:4px;">&#128100; USER MODE</div>
+      <button class="btn btn-outline btn-sm" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">Dark</button>
+      <button class="btn btn-primary btn-sm" id="new-rating-btn" onclick="showPage('new-rating')">&#10133; New Rating</button>
     </div>
   </div>
 
@@ -786,7 +787,7 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
       <div class="settings-row"><div><div class="lbl">Title / Position</div><div class="sub">Your designation</div></div><input type="text" id="cfg-title" style="width:220px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" oninput="saveSettings()"></div>
       <div class="settings-row"><div><div class="lbl">School Year</div><div class="sub">Current school year</div></div><input type="text" id="cfg-sy" style="width:160px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" oninput="saveSettings()"></div>
     </div>
-    <div class="settings-section">
+    <div class="settings-section" id="pw-settings">
       <h3>🔐 Security</h3>
       <div class="settings-row"><div><div class="lbl">Admin Password</div><div class="sub">Password to access admin features</div></div><input type="password" id="cfg-adminpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set admin password" oninput="saveSettings()"></div>
       <div class="settings-row"><div><div class="lbl">Viewer Password</div><div class="sub">Password for view-only access</div></div><input type="password" id="cfg-viewerpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set viewer password" oninput="saveSettings()"></div>
@@ -863,7 +864,6 @@ function doLogin(){
   if(role==='user'&&(pass===''||pass===userpw)) ok=true;
   if(ok){
     currentRole=role;
-    alert('DEBUG: Logged in as role = ' + currentRole + ' | pass = ' + pass + ' | userpw = ' + userpw);
     document.getElementById('login-error').style.display='none';
     document.getElementById('login-page').style.display='none';
     document.getElementById('app-shell').style.display='flex';
@@ -1831,7 +1831,7 @@ function initApp(){
   // Show/hide New Rating for user role (users CAN rate)
   // Hide delete buttons, settings password for non-admin
   var newRatingNav = document.querySelector('.nav-item[onclick*="new-rating"]');
-  var newRatingBtn = document.querySelector('.topbar-right .btn-primary');
+  var newRatingBtn = document.getElementById('new-rating-btn') || document.querySelector('.topbar-right .btn-primary');
   var viewerBadge = document.getElementById('viewer-badge');
 
   // Users can rate - show new rating
