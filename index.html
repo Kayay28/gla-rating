@@ -464,6 +464,11 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
 .sidebar-brand img { border-radius: 9px; background: transparent; }
 .login-logo img { border-radius: 18px; background: transparent; }
 .welcome-logo { border-radius: 16px; background: transparent; }
+
+/* User badge color */
+#viewer-badge { background: var(--green) !important; }
+/* Admin-only CSS */
+body[data-role="user"] .admin-only-el { display: none !important; }
 </style>
 </head>
 <body>
@@ -486,14 +491,14 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
         <div class="rb-title">Admin</div>
         <div class="rb-sub">Full access</div>
       </div>
-      <div class="role-btn" id="role-viewer" onclick="selectRole('viewer')">
-        <div class="rb-icon">👁️</div>
-        <div class="rb-title">Viewer</div>
-        <div class="rb-sub">View only</div>
+      <div class="role-btn" id="role-user" onclick="selectRole('user')">
+        <div class="rb-icon">👤</div>
+        <div class="rb-title">User</div>
+        <div class="rb-sub">Rate teachers</div>
       </div>
     </div>
 
-    <div class="login-error" id="login-error">Incorrect password. Try <b>admin123</b> or leave blank.</div>
+    <div class="login-error" id="login-error">Incorrect password. Try <b>admin123</b> (Admin) or <b>user123</b> (User)</div>
 
     <div class="login-field">
       <label>Password</label>
@@ -508,7 +513,7 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
       </button>
     </div>
     <div class="login-footer" style="margin-top:8px;">
-      Admin: <b>admin123</b> &nbsp;&bull;&nbsp; Viewer: <b>viewer123</b><br>
+      Admin: <b>admin123</b> &nbsp;&bull;&nbsp; User: <b>user123</b><br>
       <span style="font-size:10px;margin-top:4px;display:block;">Or leave blank and press Sign In to enter</span>
     </div>
   </div>
@@ -621,7 +626,7 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
     <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
     <span class="topbar-title" id="topbar-title">Dashboard</span>
     <div class="topbar-right" id="topbar-right">
-      <div id="viewer-badge" style="display:none;background:var(--blue);color:#fff;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;">VIEWER MODE</div>
+      <div id="viewer-badge" style="display:none;background:var(--blue);color:#fff;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;">USER MODE</div>
     <div id="install-wrap" style="display:none">
         <button class="btn btn-outline btn-sm" onclick="installPWA()">⬇️ Install App</button>
       </div>
@@ -678,7 +683,7 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Teacher</th><th>Advisory Class</th><th>School Year</th><th>Quarter</th><th>Total</th><th>Description</th><th>Date Rated</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Teacher</th><th>Advisory Class</th><th>School Year</th><th>Quarter</th><th>Total</th><th>Description</th><th>Date Rated</th><th id="actions-col">Actions</th></tr></thead>
         <tbody id="hist-tbody"></tbody>
       </table>
     </div>
@@ -798,10 +803,10 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
       <div class="settings-row"><div><div class="lbl">Title / Position</div><div class="sub">Your designation</div></div><input type="text" id="cfg-title" style="width:220px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" oninput="saveSettings()"></div>
       <div class="settings-row"><div><div class="lbl">School Year</div><div class="sub">Current school year</div></div><input type="text" id="cfg-sy" style="width:160px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" oninput="saveSettings()"></div>
     </div>
-    <div class="settings-section">
+    <div class="settings-section" id="pw-settings">
       <h3>🔐 Security</h3>
       <div class="settings-row"><div><div class="lbl">Admin Password</div><div class="sub">Password to access admin features</div></div><input type="password" id="cfg-adminpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set admin password" oninput="saveSettings()"></div>
-      <div class="settings-row"><div><div class="lbl">Viewer Password</div><div class="sub">Password for view-only access</div></div><input type="password" id="cfg-viewerpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set viewer password" oninput="saveSettings()"></div>
+      <div class="settings-row"><div><div class="lbl">User Password</div><div class="sub">Password for user (rating) access</div></div><input type="password" id="cfg-userpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set viewer password" oninput="saveSettings()"></div>
     </div>
     <div class="settings-section">
       <h3>🎨 Appearance</h3>
@@ -849,27 +854,27 @@ var remarks = {};
 var hist = JSON.parse(localStorage.getItem('gla_hist')||'[]');
 var teachers = JSON.parse(localStorage.getItem('gla_teachers')||'[]');
 var draft = JSON.parse(localStorage.getItem('gla_draft')||'null');
-var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","viewerpw":"viewer123"}');
+var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","userpw":"user123"}');
 var currentRole = 'guest';
 var autoSaveTimer = null;
 
 // ── AUTH ──
 function selectRole(role){
   document.getElementById('role-admin').classList.toggle('selected', role==='admin');
-  document.getElementById('role-viewer').classList.toggle('selected', role==='viewer');
+  document.getElementById('role-viewer').classList.toggle('selected', role==='user');
   document.getElementById('role-admin').dataset.role = 'admin';
-  document.getElementById('role-viewer').dataset.role = 'viewer';
+  document.getElementById('role-viewer').dataset.role = 'user';
   document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('selected');});
-  document.getElementById('role-'+role).classList.add('selected');
+  var roleEl=document.getElementById('role-'+role); if(roleEl) roleEl.classList.add('selected');
 }
 
 function getSelectedRole(){
   var sel = document.querySelector('.role-btn.selected');
-  return sel ? (sel.id === 'role-admin' ? 'admin' : 'viewer') : 'admin';
+  return sel ? (sel.id === 'role-admin' ? 'admin' : 'user') : 'admin';
 }
 
 function guestLogin(){
-  currentRole='admin';
+  currentRole='user';
   document.getElementById('login-page').style.display='none';
   document.getElementById('app-shell').style.display='flex';
   initApp();
@@ -880,11 +885,11 @@ function doLogin(){
   var role = getSelectedRole();
   // Get passwords with multiple fallbacks
   var adminpw = (settings&&settings.adminpw) ? settings.adminpw : 'admin123';
-  var viewerpw = (settings&&settings.viewerpw) ? settings.viewerpw : 'viewer123';
-  var correct = role==='admin' ? adminpw : viewerpw;
+  var viewerpw = (settings&&settings.userpw) ? settings.userpw : 'viewer123';
+  var correct = role==='admin' ? adminpw : userpw;
   // Also allow empty password to work as guest
   if(pass==='' || pass===correct){
-    currentRole = (pass==='' || pass===adminpw) ? 'admin' : 'viewer';
+    currentRole = (pass==='' || pass===adminpw) ? 'admin' : 'user';
     document.getElementById('login-error').style.display='none';
     document.getElementById('login-page').style.display='none';
     document.getElementById('app-shell').style.display='flex';
@@ -964,11 +969,7 @@ function getAvatarColor(n){return COLORS[(n||'').charCodeAt(0)%COLORS.length]||C
 var PAGE_TITLES={'dashboard':'Dashboard','history':'Rating History','teachers':'Teachers','reports':'Reports','new-rating':'New Rating','settings':'Settings'};
 
 function showPage(id){
-  // Block viewer from new-rating
-  if(id==='new-rating' && currentRole!=='admin'){
-    toast('Viewer cannot create ratings','error');
-    return;
-  }
+  // Users can access all pages
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var pg=document.getElementById('page-'+id);
@@ -1172,7 +1173,6 @@ function renderTeachers(){
 }
 
 function doAddTeacher(){
-  if(currentRole!=="admin"){toast("Viewer cannot add teachers","error");return;}
   var name=document.getElementById('t-name').value.trim();
   if(!name){toast('Name is required','error');return;}
   if(teachers.find(function(t){return t.name.toLowerCase()===name.toLowerCase();})){toast('Teacher already exists','error');return;}
@@ -1407,7 +1407,6 @@ function triggerAutoSave(){
 }
 
 function saveDraft(silent){
-  if(currentRole!=="admin"){if(!silent)toast("Viewer cannot save drafts","error");return;}
   draft={
     name:document.getElementById('i-name')?document.getElementById('i-name').value:'',
     cls:document.getElementById('i-class')?document.getElementById('i-class').value:'',
@@ -1486,7 +1485,6 @@ function resetRating(){
 }
 
 function generateSheet(){
-  if(currentRole!=="admin"){toast("Viewer cannot create ratings","error");return;}
   var name=(document.getElementById('i-name')||{}).value||'';
   if(!name){toast('Please enter the teacher name','error');return;}
   var r1=calcSec('s1',0.40),r2=calcSec('s2',0.20),r3=calcSec('s3',0.20),r4=calcSec('s4',0.20);
@@ -1523,7 +1521,7 @@ function loadSettingsForm(){
   document.getElementById('cfg-title').value=settings.title||'Academic Coordinator';
   document.getElementById('cfg-sy').value=settings.sy||'2026-2027';
   document.getElementById('cfg-adminpw').value=settings.adminpw||'';
-  document.getElementById('cfg-viewerpw').value=settings.viewerpw||'';
+  document.getElementById('cfg-userpw').value=settings.userpw||'';
 }
 
 function saveSettings(){
@@ -1531,7 +1529,7 @@ function saveSettings(){
   settings.title=document.getElementById('cfg-title').value;
   settings.sy=document.getElementById('cfg-sy').value;
   settings.adminpw=document.getElementById('cfg-adminpw').value||'admin123';
-  settings.viewerpw=document.getElementById('cfg-viewerpw').value||'viewer123';
+  settings.userpw=document.getElementById('cfg-userpw').value||'viewer123';
   localStorage.setItem('gla_settings',JSON.stringify(settings));
   applyRoleUI();
   toast('Settings saved','success');
@@ -1758,8 +1756,8 @@ function copyWebUrl(){
 function initApp(){
   // Sidebar profile
   var isAdmin = currentRole==='admin';
-  document.getElementById('admin-av').textContent = isAdmin ? 'A' : 'V';
-  document.getElementById('admin-name-display').textContent = isAdmin ? 'Admin' : 'Viewer';
+  document.getElementById('admin-av').textContent = isAdmin ? 'A' : 'U';
+  document.getElementById('admin-name-display').textContent = isAdmin ? 'Admin' : 'User';
   document.getElementById('admin-role-display').textContent = settings.title||'Academic Coordinator';
 
   // Dark mode restore
@@ -1781,31 +1779,28 @@ function initApp(){
 
 function applyRoleUI(){
   var isAdmin = currentRole==='admin';
-  // Show/hide New Rating nav item
-  document.querySelectorAll('.nav-item').forEach(function(n){
-    if((n.getAttribute('onclick')||'').includes('new-rating')){
-      n.style.display = isAdmin ? '' : 'none';
-    }
-  });
-  // Topbar New Rating button
-  var nrBtn = document.querySelector('.topbar-right .btn-primary');
-  if(nrBtn) nrBtn.style.display = isAdmin ? '' : 'none';
-  // Viewer badge in topbar
+  // Topbar viewer badge
   var vb = document.getElementById('viewer-badge');
   if(vb) vb.style.display = isAdmin ? 'none' : 'flex';
-  // Sidebar role text
+  // Sidebar role + avatar
   var roleEl = document.getElementById('admin-role-display');
-  if(roleEl) roleEl.textContent = (isAdmin?'Admin':'Viewer')+' — '+(settings.title||'Academic Coordinator');
-  // Admin avatar color
+  if(roleEl) roleEl.textContent = (isAdmin?'Admin':'User')+' — '+(settings.title||'Academic Coordinator');
   var av = document.getElementById('admin-av');
-  if(av) av.style.background = isAdmin ? 'linear-gradient(135deg,var(--red),var(--red2))' : 'linear-gradient(135deg,var(--blue),#1D4ED8)';
+  if(av){
+    av.textContent = isAdmin ? 'A' : 'U';
+    av.style.background = isAdmin ? 'linear-gradient(135deg,var(--red),var(--red2))' : 'linear-gradient(135deg,var(--green),#047857)';
+  }
   // Mark body with role for CSS
   document.body.dataset.role = currentRole;
-  // Hide admin-only sections in settings
-  var ds = document.getElementById('admin-data-section');
-  if(ds){
-    ds.querySelector('button[onclick="clearAll()"]').style.display = isAdmin ? '' : 'none';
-  }
+
+  // ── ADMIN-ONLY UI elements ──
+  // Delete buttons in history table — handled in renderHistory
+  // Delete/clear in settings
+  var clearBtn = document.querySelector('button[onclick="clearAll()"]');
+  if(clearBtn) clearBtn.style.display = isAdmin ? '' : 'none';
+  // Hide password settings for user
+  var pwSection = document.getElementById('pw-settings');
+  if(pwSection) pwSection.style.display = isAdmin ? '' : 'none';
 }
 </script>
 </body>
