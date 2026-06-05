@@ -460,113 +460,19 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
 .live-score{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;}
 .rb-row{display:flex;gap:6px;flex-wrap:wrap;}
 
-/* ═══ MOBILE PHONE OPTIMIZATIONS ═══ */
-
-/* Prevent text zoom on input focus (iOS) */
-input, select, textarea { font-size: 16px !important; }
-@media(max-width:768px){
-  input, select, textarea { font-size: 16px !important; }
+/* ── PROFILE PHOTOS ── */
+.profile-photo-circle{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--red),var(--red2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:700;color:#fff;flex-shrink:0;
+  overflow:hidden;cursor:pointer;position:relative;box-shadow:var(--sh-red);
 }
-
-/* Better touch targets */
-.rb { width:38px !important; height:38px !important; font-size:13px !important; }
-.btn { min-height:40px; }
-.nav-item { min-height:44px; }
-
-/* Mobile layout fixes */
-@media(max-width:768px){
-  /* Full screen pages */
-  .page { padding:12px !important; }
-  #page-new-rating { padding:0 !important; }
-
-  /* Stats grid - 2 cols on phone */
-  .stats-grid { grid-template-columns:1fr 1fr !important; gap:10px !important; }
-  .stat-val { font-size:22px !important; }
-
-  /* Welcome banner compact */
-  .dash-welcome { padding:16px !important; }
-  .dash-welcome h2 { font-size:16px !important; }
-  .welcome-logo { width:48px !important; height:48px !important; }
-
-  /* Dash grid single column */
-  .dash-grid { grid-template-columns:1fr !important; }
-
-  /* Rating form */
-  .info-grid { grid-template-columns:1fr !important; }
-  .rating-header { padding:16px !important; border-radius:12px !important; }
-  .rating-header h2 { font-size:15px !important; }
-
-  /* Rating items */
-  .rating-item { padding:8px 10px !important; gap:8px !important; }
-  .item-text { font-size:12px !important; }
-  .item-num { font-size:10px !important; width:16px !important; }
-  .rating-btns { gap:3px !important; }
-  .rb { width:34px !important; height:34px !important; font-size:12px !important; border-radius:7px !important; }
-
-  /* Section header */
-  .section-header { padding:10px 12px !important; }
-  .section-header h3 { font-size:12px !important; }
-
-  /* Action bar */
-  .action-bar { padding:10px 12px !important; flex-wrap:wrap !important; gap:8px !important; }
-  .action-bar .btn-lg { width:100% !important; justify-content:center !important; font-size:14px !important; }
-  .wbtn,.qbtn,.pbtn { padding:8px 12px !important; font-size:12px !important; }
-
-  /* Score strip */
-  .score-strip { padding:10px 12px !important; gap:8px !important; }
-  .score-item .val { font-size:16px !important; }
-  .score-item .lbl { font-size:8px !important; }
-
-  /* Topbar */
-  .topbar { padding:0 12px !important; height:52px !important; }
-  .topbar-title { font-size:14px !important; }
-  #viewer-badge { font-size:10px !important; padding:3px 8px !important; }
-
-  /* History table - scrollable */
-  .table-wrap { border-radius:8px !important; }
-  th { font-size:10px !important; padding:8px 10px !important; }
-  td { font-size:12px !important; padding:8px 10px !important; }
-
-  /* Reports grid */
-  #page-reports > div { grid-template-columns:1fr !important; }
-
-  /* Teachers grid */
-  .teachers-grid { grid-template-columns:1fr !important; }
-  .teacher-card { padding:12px !important; }
-
-  /* Settings */
-  .settings-section { padding:14px !important; }
-  .settings-row { flex-direction:column !important; align-items:flex-start !important; gap:8px !important; }
-  .settings-row input { width:100% !important; }
-
-  /* Modal */
-  .modal { margin:10px !important; border-radius:16px !important; }
-  .qr-grid { grid-template-columns:1fr 1fr !important; gap:10px !important; padding:0 14px 12px !important; }
-
-  /* Login card */
-  .login-card { padding:24px 20px !important; margin:10px !important; }
-  .role-btns { gap:8px !important; }
-  .login-btn { padding:12px !important; }
-}
-
-@media(max-width:380px){
-  .rb { width:30px !important; height:30px !important; font-size:11px !important; }
-  .stat-val { font-size:20px !important; }
-  .item-text { font-size:11px !important; }
-}
-
-/* Smooth scrolling */
-.page, body { -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
-
-/* Better tap highlight */
-* { -webkit-tap-highlight-color:rgba(192,57,43,.15); }
-
-/* PWA safe areas (iPhone notch) */
-@supports(padding:max(0px)){
-  .topbar { padding-left:max(12px,env(safe-area-inset-left)) !important; padding-right:max(12px,env(safe-area-inset-right)) !important; }
-  .action-bar { padding-bottom:max(12px,env(safe-area-inset-bottom)) !important; }
-  .sidebar { padding-top:env(safe-area-inset-top); }
-}
+.profile-photo-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.profile-photo-wrap{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--pale);}
+.profile-photo-info .change-btn{font-size:12px;color:var(--red);font-weight:600;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;margin-top:6px;display:inline-block;}
+.tc-av img{width:100%;height:100%;object-fit:cover;border-radius:12px;}
+.admin-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 </style>
 </head>
 <body>
@@ -661,8 +567,21 @@ input, select, textarea { font-size: 16px !important; }
       <button class="modal-close-btn" onclick="closeModal('teacher-modal')">&#x2715;</button>
     </div>
     <p class="modal-sub">Add a teacher to the GLA faculty list</p>
+    <div style="padding:16px 22px 0;display:flex;align-items:center;gap:14px;margin-bottom:4px;">
+      <div id="t-photo-preview" onclick="document.getElementById('t-photo-input').click()"
+        style="width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));
+        display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;
+        position:relative;box-shadow:var(--sh-red);" title="Click to upload photo">
+        <span id="t-photo-initial" style="color:#fff;font-size:22px;">&#128247;</span>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--dark);">Profile Photo</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Click circle to upload</div>
+        <input type="file" id="t-photo-input" accept="image/*" style="display:none" onchange="previewTeacherPhoto(this)">
+      </div>
+    </div>
     <div class="teacher-form-grid">
-      <div class="field f-full"><label>Full Name</label><input id="t-name" type="text" placeholder="e.g. Maria Santos"></div>
+      <div class="field f-full"><label>Full Name</label><input id="t-name" type="text" placeholder="e.g. Maria Santos" oninput="updateTeacherInitial()"></div>
       <div class="field"><label>Department</label><input id="t-dept" type="text" placeholder="e.g. Science"></div>
       <div class="field"><label>Advisory Class</label><input id="t-class" type="text" placeholder="e.g. Grade 7A"></div>
       <div class="field f-full"><label>Subjects Handled</label><input id="t-subj" type="text" placeholder="e.g. Math, Science"></div>
@@ -721,9 +640,8 @@ input, select, textarea { font-size: 16px !important; }
       <div id="install-wrap" style="display:none">
         <button class="btn btn-outline btn-sm" onclick="installPWA()">⬇️ Install App</button>
       </div>
-      <div id="viewer-badge" style="display:none;background:#059669;color:#fff;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;align-items:center;gap:4px;">&#128100; USER MODE</div>
-      <button class="btn btn-outline btn-sm" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">Dark</button>
-      <button class="btn btn-primary btn-sm" id="new-rating-btn" onclick="showPage('new-rating')">&#10133; New Rating</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">🌙</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('new-rating')">➕ New Rating</button>
     </div>
   </div>
 
@@ -895,7 +813,7 @@ input, select, textarea { font-size: 16px !important; }
       <div class="settings-row"><div><div class="lbl">Title / Position</div><div class="sub">Your designation</div></div><input type="text" id="cfg-title" style="width:220px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" oninput="saveSettings()"></div>
       <div class="settings-row"><div><div class="lbl">School Year</div><div class="sub">Current school year</div></div><input type="text" id="cfg-sy" style="width:160px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" oninput="saveSettings()"></div>
     </div>
-    <div class="settings-section" id="pw-settings">
+    <div class="settings-section">
       <h3>🔐 Security</h3>
       <div class="settings-row"><div><div class="lbl">Admin Password</div><div class="sub">Password to access admin features</div></div><input type="password" id="cfg-adminpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set admin password" oninput="saveSettings()"></div>
       <div class="settings-row"><div><div class="lbl">Viewer Password</div><div class="sub">Password for view-only access</div></div><input type="password" id="cfg-viewerpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set viewer password" oninput="saveSettings()"></div>
@@ -946,20 +864,112 @@ var remarks = {};
 var hist = JSON.parse(localStorage.getItem('gla_hist')||'[]');
 var teachers = JSON.parse(localStorage.getItem('gla_teachers')||'[]');
 var draft = JSON.parse(localStorage.getItem('gla_draft')||'null');
-var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","userpw":"user123"}');
+var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","viewerpw":"viewer123"}');
 var currentRole = 'guest';
 var autoSaveTimer = null;
 
+
+// ── PROFILE PHOTOS ──
+function uploadProfilePhoto(input){
+  if(!input.files||!input.files[0]) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    localStorage.setItem('gla_photo_'+currentRole,e.target.result);
+    applyProfilePhoto();
+    toast('Profile photo updated!','success');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function removeProfilePhoto(){
+  localStorage.removeItem('gla_photo_'+currentRole);
+  applyProfilePhoto();
+  toast('Photo removed','info');
+}
+function applyProfilePhoto(){
+  var isAdmin=currentRole==='admin';
+  var photo=localStorage.getItem('gla_photo_'+currentRole);
+  var initial=isAdmin?'A':'U';
+  // Sidebar avatar
+  var av=document.getElementById('admin-av');
+  if(av){
+    if(photo){
+      av.innerHTML='<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    } else {
+      av.innerHTML=initial;
+      av.style.background=isAdmin?'linear-gradient(135deg,#C0392B,#9B2D23)':'linear-gradient(135deg,#059669,#047857)';
+    }
+  }
+  // Settings circle
+  var circle=document.getElementById('profile-photo-circle');
+  if(circle){
+    var oldImg=circle.querySelector('img');
+    if(oldImg) oldImg.remove();
+    var sp=document.getElementById('profile-photo-initial');
+    if(photo){
+      if(sp) sp.style.display='none';
+      var img=document.createElement('img');
+      img.src=photo;
+      img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0;';
+      circle.appendChild(img);
+    } else {
+      if(sp){sp.style.display='';sp.textContent=initial;}
+      circle.style.background=isAdmin?'linear-gradient(135deg,#C0392B,#9B2D23)':'linear-gradient(135deg,#059669,#047857)';
+    }
+  }
+  var dn=document.getElementById('profile-display-name');
+  var dr=document.getElementById('profile-display-role');
+  if(dn) dn.textContent=(settings&&settings.rater)||(isAdmin?'Admin':'User');
+  if(dr) dr.textContent=(isAdmin?'Administrator':'User')+' — '+(settings.title||'Academic Coordinator');
+}
+
+// Teacher photos
+var teacherPhotoData=null;
+function previewTeacherPhoto(input){
+  if(!input.files||!input.files[0]) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    teacherPhotoData=e.target.result;
+    var preview=document.getElementById('t-photo-preview');
+    if(preview){
+      var old=preview.querySelector('img');if(old) old.remove();
+      var sp=document.getElementById('t-photo-initial');if(sp) sp.style.display='none';
+      var img=document.createElement('img');
+      img.src=teacherPhotoData;
+      img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%;';
+      preview.appendChild(img);
+    }
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function updateTeacherInitial(){
+  var name=(document.getElementById('t-name')||{}).value||'';
+  var sp=document.getElementById('t-photo-initial');
+  if(sp&&!teacherPhotoData) sp.textContent=name?getInitials(name):'📷';
+}
+function resetTeacherPhotoPreview(){
+  teacherPhotoData=null;
+  var preview=document.getElementById('t-photo-preview');
+  if(preview){var old=preview.querySelector('img');if(old) old.remove();}
+  var sp=document.getElementById('t-photo-initial');
+  if(sp){sp.style.display='';sp.textContent='📷';}
+  var inp=document.getElementById('t-photo-input');
+  if(inp) inp.value='';
+}
+
+
 // ── AUTH ──
 function selectRole(role){
+  document.getElementById('role-admin').classList.toggle('selected', role==='admin');
+  document.getElementById('role-viewer').classList.toggle('selected', role==='viewer');
+  document.getElementById('role-admin').dataset.role = 'admin';
+  document.getElementById('role-viewer').dataset.role = 'viewer';
   document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('selected');});
-  var el=document.getElementById('role-'+role);
-  if(el) el.classList.add('selected');
+  document.getElementById('role-'+role).classList.add('selected');
 }
 
 function getSelectedRole(){
   var sel = document.querySelector('.role-btn.selected');
-  return sel ? (sel.id === 'role-admin' ? 'admin' : 'user') : 'admin';
+  return sel ? (sel.id === 'role-admin' ? 'admin' : 'viewer') : 'admin';
 }
 
 function doLogin(){
@@ -1069,18 +1079,7 @@ function showPage(id){
 }
 
 function toggleSidebar(){
-  var sb = document.getElementById('sidebar');
-  sb.classList.toggle('open');
-  // Add/remove overlay
-  var ov = document.getElementById('sidebar-overlay');
-  if(!ov){
-    ov = document.createElement('div');
-    ov.id = 'sidebar-overlay';
-    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;display:none;';
-    ov.onclick = function(){ toggleSidebar(); };
-    document.body.appendChild(ov);
-  }
-  ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+  document.getElementById('sidebar').classList.toggle('open');
 }
 
 function openModal(id){document.getElementById(id).classList.add('open');}
@@ -1198,7 +1197,6 @@ function renderHistory(){
 }
 
 function deleteRating(idx){
-  if(currentRole!=='admin'){toast('Only Admin can delete','error');return;}
   if(!confirm('Delete this rating?')) return;
   hist.splice(idx,1);
   localStorage.setItem('gla_hist',JSON.stringify(hist));
@@ -1246,17 +1244,16 @@ function doAddTeacher(){
   var name=document.getElementById('t-name').value.trim();
   if(!name){toast('Name is required','error');return;}
   if(teachers.find(function(t){return t.name.toLowerCase()===name.toLowerCase();})){toast('Teacher already exists','error');return;}
-  teachers.push({name:name,dept:document.getElementById('t-dept').value.trim(),advisoryClass:document.getElementById('t-class').value.trim(),subjects:document.getElementById('t-subj').value.trim()});
+  teachers.push({name:name,dept:document.getElementById('t-dept').value.trim(),advisoryClass:document.getElementById('t-class').value.trim(),subjects:document.getElementById('t-subj').value.trim(),photo:teacherPhotoData||null});
   localStorage.setItem('gla_teachers',JSON.stringify(teachers));
   closeModal('teacher-modal');
-  ['t-name','t-dept','t-class','t-subj'].forEach(function(id){document.getElementById(id).value='';});
+  ['t-name','t-dept','t-class','t-subj'].forEach(function(id){document.getElementById(id).value='';}); resetTeacherPhotoPreview();
   renderTeachers();
   document.getElementById('s-teachers').textContent=teachers.length;
   toast(name+' added to faculty','success');
 }
 
 function deleteTeacher(idx){
-  if(currentRole!=='admin'){toast('Only Admin can delete','error');return;}
   if(!confirm('Remove this teacher?')) return;
   teachers.splice(idx,1);
   localStorage.setItem('gla_teachers',JSON.stringify(teachers));
@@ -1508,6 +1505,7 @@ function saveDraft(silent){
     ratedate:document.getElementById('i-ratedate')?document.getElementById('i-ratedate').value:'',
     recv:document.getElementById('i-recv')?document.getElementById('i-recv').value:'',
     ratings:JSON.parse(JSON.stringify(ratings)),
+    photo:(tRecord&&tRecord.photo)||null,
     remarks:JSON.parse(JSON.stringify(remarks))
   };
   localStorage.setItem('gla_draft',JSON.stringify(draft));
@@ -1579,6 +1577,7 @@ function generateSheet(){
   var r1=calcSec('s1',0.40),r2=calcSec('s2',0.20),r3=calcSec('s3',0.20),r4=calcSec('s4',0.20);
   var total=+(r1.sub+r2.sub+r3.sub+r4.sub).toFixed(2);
   if(!total){toast('Please rate at least some items','error');return;}
+  var tRecord=teachers.find(function(t){return t.name===name;});
   var entry={
     name:name,
     advisoryClass:(document.getElementById('i-class')||{}).value||'',
@@ -1593,6 +1592,7 @@ function generateSheet(){
     r1:r1,r2:r2,r3:r3,r4:r4,
     total:total,totalDesc:getDesc(total),
     ratings:JSON.parse(JSON.stringify(ratings)),
+    photo:(tRecord&&tRecord.photo)||null,
     dateRated:new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})
   };
   hist.unshift(entry);
@@ -1606,6 +1606,7 @@ function generateSheet(){
 
 // ── SETTINGS ──
 function loadSettingsForm(){
+  applyProfilePhoto();
   document.getElementById('cfg-rater').value=settings.rater||'';
   document.getElementById('cfg-title').value=settings.title||'Academic Coordinator';
   document.getElementById('cfg-sy').value=settings.sy||'2026-2027';
@@ -1621,12 +1622,11 @@ function saveSettings(){
   settings.viewerpw=document.getElementById('cfg-viewerpw').value||'viewer123';
   localStorage.setItem('gla_settings',JSON.stringify(settings));
   // Update admin profile display
-  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'User';
+  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'Viewer';
   document.getElementById('admin-role-display').textContent=settings.title||'Academic Coordinator';
 }
 
 function clearAll(){
-  if(currentRole!=='admin'){toast('Only Admin can clear data','error');return;}
   if(!confirm('This will permanently delete ALL ratings and drafts. Are you sure?')) return;
   hist=[]; draft=null;
   localStorage.removeItem('gla_hist');
@@ -1927,52 +1927,26 @@ function copyWebUrl(){
 
 // ── INIT ──
 function initApp(){
-  var isAdmin = currentRole==='admin';
-
-  // Sidebar profile
-  document.getElementById('admin-av').textContent = isAdmin ? 'A' : 'U';
-  document.getElementById('admin-av').style.background = isAdmin
-    ? 'linear-gradient(135deg,#C0392B,#9B2D23)'
-    : 'linear-gradient(135deg,#059669,#047857)';
-  document.getElementById('admin-name-display').textContent = isAdmin ? 'Admin' : 'User';
-  document.getElementById('admin-role-display').textContent = (isAdmin?'Administrator':'User') + ' — ' + (settings.title||'Academic Coordinator');
-
+  // Update admin info
+  document.getElementById('admin-av').textContent=currentRole==='admin'?'A':'V';
+  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'Viewer';
+  document.getElementById('admin-role-display').textContent=settings.title||'Academic Coordinator';
   // Dark mode
   if(localStorage.getItem('gla_dark')==='1'){
     document.body.classList.add('dark');
-    var db=document.getElementById('dark-btn');
-    if(db) db.textContent='Light';
+    document.getElementById('dark-btn').textContent='☀️';
   }
-
-  // Role restrictions
-  document.body.dataset.role = currentRole;
-
-  // Show/hide New Rating for user role (users CAN rate)
-  // Hide delete buttons, settings password for non-admin
-  var newRatingNav = document.querySelector('.nav-item[onclick*="new-rating"]');
-  var newRatingBtn = document.getElementById('new-rating-btn') || document.querySelector('.topbar-right .btn-primary');
-  var viewerBadge = document.getElementById('viewer-badge');
-
-  // Users can rate - show new rating
-  if(newRatingNav) newRatingNav.style.display = '';
-  if(newRatingBtn) newRatingBtn.style.display = '';
-
-  // Show USER badge in topbar for non-admin
-  if(viewerBadge) viewerBadge.style.display = isAdmin ? 'none' : 'flex';
-
-  // Hide password settings section for non-admin
-  var pwSection = document.getElementById('pw-settings');
-  if(pwSection) pwSection.style.display = isAdmin ? '' : 'none';
-
-  // Draft badge
-  if(draft) document.getElementById('draft-badge').style.display='inline';
-
-  // Load dashboard
+  // Greeting
   renderDashboard();
-}
-
-function applyRoleUI(){
-  initApp();
+  // Draft badge
+  if(draft){
+    document.getElementById('draft-badge').style.display='inline';
+  }
+  // Viewer restrictions
+  if(currentRole==='viewer'){
+    // Hide new rating button and edit features
+    document.querySelector('.btn-primary[onclick*="new-rating"]').style.display='none';
+  }
 }
 </script>
 </body>
