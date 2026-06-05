@@ -863,6 +863,7 @@ function doLogin(){
   if(role==='user'&&(pass===''||pass===userpw)) ok=true;
   if(ok){
     currentRole=role;
+    alert('DEBUG: Logged in as role = ' + currentRole + ' | pass = ' + pass + ' | userpw = ' + userpw);
     document.getElementById('login-error').style.display='none';
     document.getElementById('login-page').style.display='none';
     document.getElementById('app-shell').style.display='flex';
