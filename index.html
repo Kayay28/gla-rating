@@ -619,7 +619,7 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
       <div id="install-wrap" style="display:none">
         <button class="btn btn-outline btn-sm" onclick="installPWA()">⬇️ Install App</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">🌙</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">Dark</button>
       <button class="btn btn-primary btn-sm" onclick="showPage('new-rating')">➕ New Rating</button>
     </div>
   </div>
@@ -998,7 +998,7 @@ function toast(msg,type){
 function toggleDark(){
   document.body.classList.toggle('dark');
   localStorage.setItem('gla_dark', document.body.classList.contains('dark')?'1':'0');
-  document.getElementById('dark-btn').textContent=document.body.classList.contains('dark')?'☀️':'🌙';
+  document.getElementById('dark-btn').textContent=document.body.classList.contains('dark')?'Light':'Dark';
 }
 
 // ── DASHBOARD ──
@@ -1192,7 +1192,7 @@ function renderReports(){
   if(!sorted.length){rt.innerHTML='<div class="empty-state"><div class="es-icon">🏆</div><div class="es-title">No data yet</div></div>';}
   else{
     rt.innerHTML=sorted.map(function(t,i){
-      var medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+      var medals=['1st','2nd','3rd','4th','5th'];
       return '<div class="ri"><div style="font-size:20px;width:30px;text-align:center;">'+medals[i]+'</div>'
         +'<div class="ri-info"><div class="ri-name">'+t.name+'</div></div>'
         +'<span class="score-pill '+getDescClass(getDesc(t.avg))+'">'+t.avg+'</span></div>';
@@ -1797,7 +1797,7 @@ function initApp(){
   // Dark mode
   if(localStorage.getItem('gla_dark')==='1'){
     document.body.classList.add('dark');
-    document.getElementById('dark-btn').textContent='☀️';
+    document.getElementById('dark-btn').textContent='Light';
   }
   // Greeting
   renderDashboard();
@@ -1807,8 +1807,8 @@ function initApp(){
   }
   // Viewer restrictions
   if(currentRole==='viewer'){
-    // Hide new rating button and edit features
-    document.querySelector('.btn-primary[onclick*="new-rating"]').style.display='none';
+    var nrBtn=document.querySelector('.btn-primary[onclick*="new-rating"]');
+    if(nrBtn) nrBtn.style.display='none';
   }
 }
 </script>
