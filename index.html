@@ -860,18 +860,23 @@ var autoSaveTimer = null;
 
 // ── AUTH ──
 function selectRole(role){
-  document.getElementById('role-admin').classList.toggle('selected', role==='admin');
-  document.getElementById('role-viewer').classList.toggle('selected', role==='user');
-  document.getElementById('role-admin').dataset.role = 'admin';
-  document.getElementById('role-viewer').dataset.role = 'user';
   document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('selected');});
-  var roleEl=document.getElementById('role-'+role); if(roleEl) roleEl.classList.add('selected');
+  var el = document.getElementById('role-'+role);
+  if(el) el.classList.add('selected');
 }
 
 function getSelectedRole(){
   var sel = document.querySelector('.role-btn.selected');
-  return sel ? (sel.id === 'role-admin' ? 'admin' : 'user') : 'admin';
+  if(!sel) return 'admin';
+  if(sel.id === 'role-admin') return 'admin';
+  if(sel.id === 'role-user') return 'user';
+  return 'admin';
 }
+
+
+function sP(el){showPage(el.dataset.p||el.getAttribute('data-p'));}
+function qR(el){quickRate(el.getAttribute('data-n'));}
+function dT(el){deleteTeacher(parseInt(el.getAttribute('data-i')));}
 
 function guestLogin(){
   currentRole='user';
