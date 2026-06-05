@@ -837,23 +837,20 @@ var remarks = {};
 var hist = JSON.parse(localStorage.getItem('gla_hist')||'[]');
 var teachers = JSON.parse(localStorage.getItem('gla_teachers')||'[]');
 var draft = JSON.parse(localStorage.getItem('gla_draft')||'null');
-var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","viewerpw":"viewer123"}');
+var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","userpw":"user123"}');
 var currentRole = 'guest';
 var autoSaveTimer = null;
 
 // ── AUTH ──
 function selectRole(role){
-  document.getElementById('role-admin').classList.toggle('selected', role==='admin');
-  document.getElementById('role-viewer').classList.toggle('selected', role==='viewer');
-  document.getElementById('role-admin').dataset.role = 'admin';
-  document.getElementById('role-viewer').dataset.role = 'viewer';
   document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('selected');});
-  document.getElementById('role-'+role).classList.add('selected');
+  var el=document.getElementById('role-'+role);
+  if(el) el.classList.add('selected');
 }
 
 function getSelectedRole(){
   var sel = document.querySelector('.role-btn.selected');
-  return sel ? (sel.id === 'role-admin' ? 'admin' : 'viewer') : 'admin';
+  return sel ? (sel.id === 'role-admin' ? 'admin' : 'user') : 'admin';
 }
 
 function doLogin(){
