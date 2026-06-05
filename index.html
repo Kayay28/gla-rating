@@ -1078,6 +1078,7 @@ function renderHistory(){
 }
 
 function deleteRating(idx){
+  if(currentRole!=='admin'){toast('Only Admin can delete','error');return;}
   if(!confirm('Delete this rating?')) return;
   hist.splice(idx,1);
   localStorage.setItem('gla_hist',JSON.stringify(hist));
@@ -1135,6 +1136,7 @@ function doAddTeacher(){
 }
 
 function deleteTeacher(idx){
+  if(currentRole!=='admin'){toast('Only Admin can delete','error');return;}
   if(!confirm('Remove this teacher?')) return;
   teachers.splice(idx,1);
   localStorage.setItem('gla_teachers',JSON.stringify(teachers));
@@ -1499,11 +1501,12 @@ function saveSettings(){
   settings.viewerpw=document.getElementById('cfg-viewerpw').value||'viewer123';
   localStorage.setItem('gla_settings',JSON.stringify(settings));
   // Update admin profile display
-  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'Viewer';
+  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'User';
   document.getElementById('admin-role-display').textContent=settings.title||'Academic Coordinator';
 }
 
 function clearAll(){
+  if(currentRole!=='admin'){toast('Only Admin can clear data','error');return;}
   if(!confirm('This will permanently delete ALL ratings and drafts. Are you sure?')) return;
   hist=[]; draft=null;
   localStorage.removeItem('gla_hist');
@@ -1804,26 +1807,52 @@ function copyWebUrl(){
 
 // ── INIT ──
 function initApp(){
-  // Update admin info
-  document.getElementById('admin-av').textContent=currentRole==='admin'?'A':'V';
-  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'Viewer';
-  document.getElementById('admin-role-display').textContent=settings.title||'Academic Coordinator';
+  var isAdmin = currentRole==='admin';
+
+  // Sidebar profile
+  document.getElementById('admin-av').textContent = isAdmin ? 'A' : 'U';
+  document.getElementById('admin-av').style.background = isAdmin
+    ? 'linear-gradient(135deg,#C0392B,#9B2D23)'
+    : 'linear-gradient(135deg,#059669,#047857)';
+  document.getElementById('admin-name-display').textContent = isAdmin ? 'Admin' : 'User';
+  document.getElementById('admin-role-display').textContent = (isAdmin?'Administrator':'User') + ' — ' + (settings.title||'Academic Coordinator');
+
   // Dark mode
   if(localStorage.getItem('gla_dark')==='1'){
     document.body.classList.add('dark');
-    document.getElementById('dark-btn').textContent='☀️';
+    var db=document.getElementById('dark-btn');
+    if(db) db.textContent='Light';
   }
-  // Greeting
-  renderDashboard();
+
+  // Role restrictions
+  document.body.dataset.role = currentRole;
+
+  // Show/hide New Rating for user role (users CAN rate)
+  // Hide delete buttons, settings password for non-admin
+  var newRatingNav = document.querySelector('.nav-item[onclick*="new-rating"]');
+  var newRatingBtn = document.querySelector('.topbar-right .btn-primary');
+  var viewerBadge = document.getElementById('viewer-badge');
+
+  // Users can rate - show new rating
+  if(newRatingNav) newRatingNav.style.display = '';
+  if(newRatingBtn) newRatingBtn.style.display = '';
+
+  // Show USER badge in topbar for non-admin
+  if(viewerBadge) viewerBadge.style.display = isAdmin ? 'none' : 'flex';
+
+  // Hide password settings section for non-admin
+  var pwSection = document.getElementById('pw-settings');
+  if(pwSection) pwSection.style.display = isAdmin ? '' : 'none';
+
   // Draft badge
-  if(draft){
-    document.getElementById('draft-badge').style.display='inline';
-  }
-  // Viewer restrictions
-  if(currentRole==='viewer'){
-    // Hide new rating button and edit features
-    document.querySelector('.btn-primary[onclick*="new-rating"]').style.display='none';
-  }
+  if(draft) document.getElementById('draft-badge').style.display='inline';
+
+  // Load dashboard
+  renderDashboard();
+}
+
+function applyRoleUI(){
+  initApp();
 }
 </script>
 </body>
