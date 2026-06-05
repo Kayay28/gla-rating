@@ -36,19 +36,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min
 .login-page::before{
   content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;
   border-radius:50%;background:radial-gradient(circle,rgba(192,57,43,.2) 0%,transparent 70%);
-
-  pointer-events:none;
 }
 .login-page::after{
   content:'';position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;
   border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.1) 0%,transparent 70%);
-
-  pointer-events:none;
 }
 .login-card{
   background:rgba(255,255,255,.97);border-radius:24px;padding:40px;
   width:100%;max-width:420px;box-shadow:var(--sh4);position:relative;z-index:1;
-  animation:loginIn .4s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:10;
+  animation:loginIn .4s cubic-bezier(.34,1.56,.64,1);
 }
 .login-logo{text-align:center;margin-bottom:28px;}
 .login-logo img{width:72px;height:72px;border-radius:18px;box-shadow:var(--sh-red);}
@@ -463,23 +459,6 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
 .rating-sec-hdr{background:linear-gradient(135deg,#0F172A,#1E293B);color:#fff;padding:11px 16px;display:flex;align-items:center;gap:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;}
 .live-score{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;}
 .rb-row{display:flex;gap:6px;flex-wrap:wrap;}
-
-/* Logo - transparent background */
-.sidebar-brand img { border-radius: 9px; background: transparent; }
-.login-logo img { border-radius: 18px; background: transparent; }
-.welcome-logo { border-radius: 16px; background: transparent; }
-
-/* User badge color */
-#viewer-badge { background: var(--green) !important; }
-/* Admin-only CSS */
-body[data-role="user"] .admin-only-el { display: none !important; }
-
-/* Role buttons as actual buttons */
-button.role-btn{
-  width:100%;font-family:inherit;outline:none;
-  -webkit-tap-highlight-color:rgba(192,57,43,.2);
-}
-button.role-btn:focus{border-color:var(--red);}
 </style>
 </head>
 <body>
@@ -503,44 +482,23 @@ button.role-btn:focus{border-color:var(--red);}
         <div class="rb-sub">Full access</div>
       </div>
       <div class="role-btn" id="role-user" onclick="selectRole('user')">
-        <div class="rb-icon">👤</div>
+        <div class="rb-icon">&#128100;</div>
         <div class="rb-title">User</div>
         <div class="rb-sub">Rate teachers</div>
       </div>
     </div>
 
-    <div class="login-error" id="login-error">Incorrect password. Try <b>admin123</b> (Admin) or <b>user123</b> (User)</div>
+    <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
 
     <div class="login-field">
       <label>Password</label>
       <input type="password" class="login-input" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
 
-    <button class="login-btn" onclick="doLogin()">&#128274; Log In</button>
+    <button class="login-btn" onclick="doLogin()">🔐 Sign In</button>
 
-    <div style="text-align:center;margin-top:14px;display:flex;flex-direction:column;gap:8px;">
-      <button onclick="guestLogin()" style="background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">
-        &#43; Sign Up (Continue as Guest)
-      </button>
-      <button onclick="showForgotPassword()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;">
-        Forgot Password?
-      </button>
-    </div>
-
-    <div class="login-footer" style="margin-top:12px;">
-      Admin: <b>admin123</b> &nbsp;&bull;&nbsp; User: <b>user123</b>
-    </div>
-
-    <!-- Forgot Password panel (hidden by default) -->
-    <div id="forgot-panel" style="display:none;margin-top:14px;background:#F8FAFC;border-radius:10px;padding:14px;border:1px solid var(--pale);">
-      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;">&#128274; Password Hint</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.6;">
-        Default passwords:<br>
-        &bull; <b>Admin:</b> admin123<br>
-        &bull; <b>User:</b> user123<br><br>
-        To change passwords, log in as Admin and go to <b>Settings &#8594; Security</b>.
-      </div>
-      <button onclick="document.getElementById('forgot-panel').style.display='none'" style="margin-top:10px;background:none;border:1px solid var(--pale);border-radius:6px;padding:5px 14px;font-size:12px;cursor:pointer;color:var(--muted);font-family:inherit;">Close</button>
+    <div class="login-footer">
+      GLA Rating System v3.0 &bull; GreAtMinds Leadership Academy
     </div>
   </div>
 </div>
@@ -652,11 +610,10 @@ button.role-btn:focus{border-color:var(--red);}
     <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
     <span class="topbar-title" id="topbar-title">Dashboard</span>
     <div class="topbar-right" id="topbar-right">
-      <div id="viewer-badge" style="display:none;background:var(--blue);color:#fff;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;">USER MODE</div>
-    <div id="install-wrap" style="display:none">
+      <div id="install-wrap" style="display:none">
         <button class="btn btn-outline btn-sm" onclick="installPWA()">⬇️ Install App</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">Dark</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">🌙</button>
       <button class="btn btn-primary btn-sm" onclick="showPage('new-rating')">➕ New Rating</button>
     </div>
   </div>
@@ -709,7 +666,7 @@ button.role-btn:focus{border-color:var(--red);}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Teacher</th><th>Advisory Class</th><th>School Year</th><th>Quarter</th><th>Total</th><th>Description</th><th>Date Rated</th><th id="actions-col">Actions</th></tr></thead>
+        <thead><tr><th>Teacher</th><th>Advisory Class</th><th>School Year</th><th>Quarter</th><th>Total</th><th>Description</th><th>Date Rated</th><th>Actions</th></tr></thead>
         <tbody id="hist-tbody"></tbody>
       </table>
     </div>
@@ -829,14 +786,34 @@ button.role-btn:focus{border-color:var(--red);}
       <div class="settings-row"><div><div class="lbl">Title / Position</div><div class="sub">Your designation</div></div><input type="text" id="cfg-title" style="width:220px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" oninput="saveSettings()"></div>
       <div class="settings-row"><div><div class="lbl">School Year</div><div class="sub">Current school year</div></div><input type="text" id="cfg-sy" style="width:160px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" oninput="saveSettings()"></div>
     </div>
-    <div class="settings-section" id="pw-settings">
+    <div class="settings-section">
       <h3>🔐 Security</h3>
       <div class="settings-row"><div><div class="lbl">Admin Password</div><div class="sub">Password to access admin features</div></div><input type="password" id="cfg-adminpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set admin password" oninput="saveSettings()"></div>
-      <div class="settings-row"><div><div class="lbl">User Password</div><div class="sub">Password for user (rating) access</div></div><input type="password" id="cfg-userpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set viewer password" oninput="saveSettings()"></div>
+      <div class="settings-row"><div><div class="lbl">Viewer Password</div><div class="sub">Password for view-only access</div></div><input type="password" id="cfg-viewerpw" style="width:180px;padding:6px 10px;border:1.5px solid var(--pale);border-radius:8px;font-size:13px;" placeholder="Set viewer password" oninput="saveSettings()"></div>
     </div>
     <div class="settings-section">
       <h3>🎨 Appearance</h3>
-      <div class="settings-row"><div><div class="lbl">Dark Mode</div><div class="sub">Toggle dark/light theme</div></div><button class="btn btn-outline btn-sm" 
+      <div class="settings-row"><div><div class="lbl">Dark Mode</div><div class="sub">Toggle dark/light theme</div></div><button class="btn btn-outline btn-sm" onclick="toggleDark()">🌙 Toggle Dark Mode</button></div>
+    </div>
+    <div class="settings-section">
+      <h3>🗑️ Data Management</h3>
+      <div class="settings-row"><div><div class="lbl">Clear All Ratings &amp; Drafts</div><div class="sub" style="color:var(--red)">This cannot be undone</div></div><button class="btn btn-danger btn-sm" onclick="clearAll()">🗑️ Clear All</button></div>
+      <div class="settings-row"><div><div class="lbl">Sign Out</div><div class="sub">Return to login screen</div></div><button class="btn btn-outline btn-sm" onclick="doLogout()">🚪 Sign Out</button></div>
+    </div>
+    <div style="margin-top:8px;text-align:center;font-size:11px;color:var(--light);padding:12px;">
+      GLA Rating System v3.0 &bull; GreAtMinds Leadership Academy &bull; 2026
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- Service Worker -->
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+var deferredPrompt;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;document.getElementById('install-wrap').style.display='flex';});</script>
+
+<script>
 // ══════════════════════════════════════════════════
 // GLA RATING SYSTEM v3.0
 // GreAtMinds Leadership Academy
@@ -844,13 +821,13 @@ button.role-btn:focus{border-color:var(--red);}
 
 // ── SECTIONS DATA ──
 var SECTIONS = [
-  {id:"s1",num:1,title:"I.\u00a0 INSTRUCTIONAL COMPETENCE (40%)",pct:"40%",weight:0.40,
+  {id:"s1",num:1,title:"I.\u00a0 INSTRUCTIONAL COMPETENCE (40%)",weight:0.40,
    items:["Adopts objectives of syllabi and curricula","Selects content and prepares appropriate instructional materials & visual aids","Adopts appropriate teaching methods","Relates new lesson with students\u2019 previous knowledge and skills","Provides appropriate motivation","Presents and develops lessons","Conveys ideas clearly","Utilizes the art of questioning to develop higher level of thinking","Ensures students\u2019 participation","Addresses individual differences","Shows mastery of the subject matter","Diagnoses learner\u2019s needs","Evaluates learning outcomes","Differentiates instruction to suit students\u2019 needs","Uses a variety of effective instructional strategies and resources","Involves students in cooperative learning to enhance higher-order thinking skills","Uses a variety of formal and informal assessment strategies to guide instruction","Gives constructive and frequent feedback to students on their learning","Provides independent practice activities","Checks for understanding and adjusts instruction as needed","English oral communication skills","English written communication skills"]},
-  {id:"s2",num:2,title:"II.\u00a0 LEARNING ENVIRONMENT (20%)",pct:"20%",weight:0.20,
+  {id:"s2",num:2,title:"II.\u00a0 LEARNING ENVIRONMENT (20%)",weight:0.20,
    items:["Maintains a clean and orderly classroom","Maintains a classroom conducive to learning","Establishes clear expectations for classroom rules and procedures early in the school year and enforces them consistently and fairly","Maximizes instructional time.","Establishes a climate of trust and teamwork by being fair, caring, respectful, and enthusiastic","Respects students\u2019 diversity, including language, culture, race, gender and special needs","Cares about students as individuals and makes them feel valued","Promotes self-discipline","Manages disruptive behaviour, distractions and misconduct well.","Keeps criticisms fair, objective and minimal"]},
-  {id:"s3",num:3,title:"III.\u00a0 INTERPERSONAL RELATIONS (20%)",pct:"20%",weight:0.20,
+  {id:"s3",num:3,title:"III.\u00a0 INTERPERSONAL RELATIONS (20%)",weight:0.20,
    items:["Supports and participates in parent-teacher activities","Works well with the other teachers and administration","Has positive relationships with students individually and in groups","Provides a climate which opens up communication between the teacher and the parent","Uses discretion in handling confidential information and difficult situations","Informs administrators and/or appropriate personnel of school-related matters in a timely manner","Cooperates with parents in the best interest of students","Acknowledges rights of others to hold different views","Handles information about students\u2019 private lives in a proper manner","Has a positive disposition and attitude"]},
-  {id:"s4",num:4,title:"IV.\u00a0 PROFESSIONALISM & PERSONAL CHARACTERISTICS (20%)",pct:"20%",weight:0.20,
+  {id:"s4",num:4,title:"IV.\u00a0 PROFESSIONALISM & PERSONAL CHARACTERISTICS (20%)",weight:0.20,
    items:["Adheres to school policies and guidelines at all times","Exerts effort to improve one\u2019s knowledge and skills","Takes responsibility for his/her actions","Channels concerns to proper authorities and not in social media nor to other people who are not of concern","Observes professional ethics","Is punctual in reporting to school and in submitting requirements","Is not often absent; when absent, only for valid reasons","Willingly accepts and satisfactorily performs tasks or assignments assigned to him/her, like committee work for co-curricular activities","Does not participate in rumor mongering","Wears the prescribed uniform at all times.",null,"Honesty/Integrity","Initiative/Resourcefulness","Courtesy","Respect for Authority","Teamwork","Leadership","Stress Tolerance","Fairness/Justice","Good Grooming","Human Relations","Self Confidence"]}
 ];
 
@@ -860,52 +837,35 @@ var remarks = {};
 var hist = JSON.parse(localStorage.getItem('gla_hist')||'[]');
 var teachers = JSON.parse(localStorage.getItem('gla_teachers')||'[]');
 var draft = JSON.parse(localStorage.getItem('gla_draft')||'null');
-var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","userpw":"user123"}');
+var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","viewerpw":"viewer123"}');
 var currentRole = 'guest';
 var autoSaveTimer = null;
 
 // ── AUTH ──
 function selectRole(role){
+  document.getElementById('role-admin').classList.toggle('selected', role==='admin');
+  document.getElementById('role-viewer').classList.toggle('selected', role==='viewer');
+  document.getElementById('role-admin').dataset.role = 'admin';
+  document.getElementById('role-viewer').dataset.role = 'viewer';
   document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('selected');});
-  var el = document.getElementById('role-'+role);
-  if(el) el.classList.add('selected');
+  document.getElementById('role-'+role).classList.add('selected');
 }
 
 function getSelectedRole(){
   var sel = document.querySelector('.role-btn.selected');
-  if(!sel) return 'admin';
-  if(sel.id === 'role-admin') return 'admin';
-  if(sel.id === 'role-user') return 'user';
-  return 'admin';
-}
-
-
-function sP(el){showPage(el.dataset.p||el.getAttribute('data-p'));}
-function qR(el){quickRate(el.getAttribute('data-n'));}
-function dT(el){deleteTeacher(parseInt(el.getAttribute('data-i')));}
-
-function showForgotPassword(){
-  var panel = document.getElementById('forgot-panel');
-  if(panel) panel.style.display = panel.style.display==='none' ? 'block' : 'none';
-}
-
-function guestLogin(){
-  currentRole='user';
-  document.getElementById('login-page').style.display='none';
-  document.getElementById('app-shell').style.display='flex';
-  initApp();
+  return sel ? (sel.id === 'role-admin' ? 'admin' : 'viewer') : 'admin';
 }
 
 function doLogin(){
-  var pass = document.getElementById('login-pass').value.trim();
-  var role = getSelectedRole();
-  // Get passwords with multiple fallbacks
-  var adminpw = (settings&&settings.adminpw) ? settings.adminpw : 'admin123';
-  var userpw = (settings&&settings.userpw) ? settings.userpw : 'user123';
-  var correct = role==='admin' ? adminpw : userpw;
-  // Also allow empty password to work as guest
-  if(pass==='' || pass===correct){
-    currentRole = (pass==='' || pass===adminpw) ? 'admin' : 'user';
+  var pass=document.getElementById('login-pass').value.trim();
+  var role=getSelectedRole();
+  var adminpw=(settings&&settings.adminpw&&settings.adminpw!=='')?settings.adminpw:'admin123';
+  var userpw=(settings&&settings.userpw&&settings.userpw!=='')?settings.userpw:'user123';
+  var ok=false;
+  if(role==='admin'&&(pass===''||pass===adminpw)) ok=true;
+  if(role==='user'&&(pass===''||pass===userpw)) ok=true;
+  if(ok){
+    currentRole=role;
     document.getElementById('login-error').style.display='none';
     document.getElementById('login-page').style.display='none';
     document.getElementById('app-shell').style.display='flex';
@@ -916,7 +876,6 @@ function doLogin(){
     document.getElementById('login-pass').focus();
   }
 }
-
 function doLogout(){
   currentRole='guest';
   document.getElementById('app-shell').style.display='none';
@@ -985,7 +944,6 @@ function getAvatarColor(n){return COLORS[(n||'').charCodeAt(0)%COLORS.length]||C
 var PAGE_TITLES={'dashboard':'Dashboard','history':'Rating History','teachers':'Teachers','reports':'Reports','new-rating':'New Rating','settings':'Settings'};
 
 function showPage(id){
-  // Users can access all pages
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var pg=document.getElementById('page-'+id);
@@ -1015,8 +973,8 @@ function toast(msg,type){
   var c=document.getElementById('toast-container');
   var t=document.createElement('div');
   t.className='toast toast-'+(type||'info');
-  var icons={'success':'OK','error':'ERR','info':'INFO','warning':'WARN'};
-  t.innerHTML=msg;
+  var icons={'success':'✅','error':'❌','info':'ℹ️','warning':'⚠️'};
+  t.innerHTML=(icons[type]||'ℹ️')+' '+msg;
   c.appendChild(t);
   setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},3500);
 }
@@ -1025,14 +983,14 @@ function toast(msg,type){
 function toggleDark(){
   document.body.classList.toggle('dark');
   localStorage.setItem('gla_dark', document.body.classList.contains('dark')?'1':'0');
-  document.getElementById('dark-btn').textContent=document.body.classList.contains('dark')?'Light':'Dark';
+  document.getElementById('dark-btn').textContent=document.body.classList.contains('dark')?'☀️':'🌙';
 }
 
 // ── DASHBOARD ──
 function renderDashboard(){
   var h=document.getElementById('welcome-greeting');
   var hr=new Date().getHours();
-  var greet=hr<12?'Good morning!':hr<17?'Good afternoon!':'Good evening!';
+  var greet=hr<12?'Good morning! ☀️':hr<17?'Good afternoon! 🌤️':'Good evening! 🌙';
   h.textContent=greet;
 
   document.getElementById('s-total').textContent=hist.length;
@@ -1116,14 +1074,13 @@ function renderHistory(){
       +'<td><span class="score-pill '+getDescClass(r.totalDesc)+'">'+r.totalDesc+'</span></td>'
       +'<td style="color:var(--muted);font-size:12px;">'+r.dateRated+'</td>'
       +'<td><div style="display:flex;gap:6px;">'
-      +(currentRole==='admin'?'<button class="btn btn-danger btn-xs" onclick="deleteRating('+origIdx+')">Del</button>':'')
+      +(currentRole==='admin'?'<td><button class="btn btn-danger btn-xs" onclick="deleteRating('+origIdx+')">Del</button></td>':'<td></td>')
       +'</div></td>'
       +'</tr>';
   }).join('');
 }
 
 function deleteRating(idx){
-  if(currentRole!=="admin"){toast("Viewer cannot delete ratings","error");return;}
   if(!confirm('Delete this rating?')) return;
   hist.splice(idx,1);
   localStorage.setItem('gla_hist',JSON.stringify(hist));
@@ -1134,55 +1091,34 @@ function deleteRating(idx){
 // ── TEACHERS ──
 function renderTeachers(){
   var search=(document.getElementById('t-search')||{}).value||'';
-  var filtered=teachers.filter(function(t){
-    return !search||t.name.toLowerCase().includes(search.toLowerCase())||((t.dept||'').toLowerCase().includes(search.toLowerCase()));
-  });
+  var filtered=teachers.filter(function(t){return !search||t.name.toLowerCase().includes(search.toLowerCase())||((t.dept||'').toLowerCase().includes(search.toLowerCase()));});
   var grid=document.getElementById('teachers-grid');
   grid.innerHTML='';
   if(!filtered.length){
-    var em=document.createElement('div');
-    em.className='empty-state';
-    em.style.gridColumn='1/-1';
+    var em=document.createElement('div');em.className='empty-state';em.style.gridColumn='1/-1';
     em.innerHTML='<div class="es-icon">&#127979;</div><div class="es-title">'+(teachers.length?'No results':'No teachers yet')+'</div>';
-    grid.appendChild(em);
-    return;
+    grid.appendChild(em);return;
   }
   filtered.forEach(function(t){
     var origIdx=teachers.indexOf(t);
     var tR=hist.filter(function(r){return r.name===t.name;});
     var avg=tR.length?(tR.reduce(function(s,r){return s+parseFloat(r.total);},0)/tR.length).toFixed(2):'-';
-    var card=document.createElement('div');
-    card.className='teacher-card';
-    var head=document.createElement('div');
-    head.className='tc-head';
-    var av=document.createElement('div');
-    av.className='tc-av';
-    av.style.background=getAvatarColor(t.name);
-    av.textContent=getInitials(t.name);
-    var info=document.createElement('div');
-    info.className='tc-info';
+    var card=document.createElement('div');card.className='teacher-card';
+    var head=document.createElement('div');head.className='tc-head';
+    var av=document.createElement('div');av.className='tc-av';av.style.background=getAvatarColor(t.name);av.textContent=getInitials(t.name);
+    var info=document.createElement('div');info.className='tc-info';
     info.innerHTML='<div class="name">'+t.name+'</div><div class="dept">'+(t.dept||'No dept')+'</div>';
-    head.appendChild(av);
-    head.appendChild(info);
-    card.appendChild(head);
-    var stats=document.createElement('div');
-    stats.className='tc-stats';
+    head.appendChild(av);head.appendChild(info);card.appendChild(head);
+    var stats=document.createElement('div');stats.className='tc-stats';
     stats.innerHTML='<div class="tc-stat"><div class="sv">'+avg+'</div><div class="lb">Avg</div></div><div class="tc-stat"><div class="sv">'+tR.length+'</div><div class="lb">Ratings</div></div>';
     card.appendChild(stats);
     if(currentRole==='admin'){
-      var acts=document.createElement('div');
-      acts.style.cssText='display:flex;gap:6px;margin-left:8px;flex-shrink:0;';
-      var rb=document.createElement('button');
-      rb.className='btn btn-primary btn-xs';
-      rb.textContent='Rate';
+      var acts=document.createElement('div');acts.style.cssText='display:flex;gap:6px;margin-left:8px;flex-shrink:0;';
+      var rb=document.createElement('button');rb.className='btn btn-primary btn-xs';rb.textContent='Rate';rb.type='button';
       (function(n){rb.onclick=function(){quickRate(n);};})(t.name);
-      var db=document.createElement('button');
-      db.className='btn btn-danger btn-xs';
-      db.textContent='Del';
+      var db=document.createElement('button');db.className='btn btn-danger btn-xs';db.textContent='Del';db.type='button';
       (function(idx){db.onclick=function(){deleteTeacher(idx);};})(origIdx);
-      acts.appendChild(rb);
-      acts.appendChild(db);
-      card.appendChild(acts);
+      acts.appendChild(rb);acts.appendChild(db);card.appendChild(acts);
     }
     grid.appendChild(card);
   });
@@ -1202,7 +1138,6 @@ function doAddTeacher(){
 }
 
 function deleteTeacher(idx){
-  if(currentRole!=="admin"){toast("Viewer cannot delete teachers","error");return;}
   if(!confirm('Remove this teacher?')) return;
   teachers.splice(idx,1);
   localStorage.setItem('gla_teachers',JSON.stringify(teachers));
@@ -1255,7 +1190,7 @@ function renderReports(){
   if(!sorted.length){rt.innerHTML='<div class="empty-state"><div class="es-icon">🏆</div><div class="es-title">No data yet</div></div>';}
   else{
     rt.innerHTML=sorted.map(function(t,i){
-      var medals=['1st','2nd','3rd','4th','5th'];
+      var medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
       return '<div class="ri"><div style="font-size:20px;width:30px;text-align:center;">'+medals[i]+'</div>'
         +'<div class="ri-info"><div class="ri-name">'+t.name+'</div></div>'
         +'<span class="score-pill '+getDescClass(getDesc(t.avg))+'">'+t.avg+'</span></div>';
@@ -1321,13 +1256,9 @@ function buildSections(){
   SECTIONS.forEach(function(sec){
     var card=document.createElement('div');
     card.className='section-card';
-    // Header
     var hdr=document.createElement('div');
     hdr.className='section-header';
-    hdr.innerHTML='<h3>'+sec.title+'</h3>'
-      +'<span class="section-badge">'+sec.pct+'</span>'
-      +'<span class="section-progress" id="sp-'+sec.id+'">0/'
-      +sec.items.filter(function(x){return x!==null;}).length+'</span>';
+    hdr.innerHTML='<h3>'+sec.title+'</h3><span class="section-badge">'+sec.pct+'</span><span class="section-progress" id="sp-'+sec.id+'">0/'+sec.items.filter(function(x){return x!==null;}).length+'</span>';
     card.appendChild(hdr);
     var ri=0;
     sec.items.forEach(function(item){
@@ -1356,14 +1287,10 @@ function buildSections(){
         btn.title=v+' - '+getDesc(v);
         btn.textContent=v;
         btn.type='button';
-        (function(sid,idx,val){
-          btn.onclick=function(){ setRating(sid,idx,val); };
-        })(sec.id,ri,v);
+        (function(sid,idx,val){btn.onclick=function(){setRating(sid,idx,val);};})(sec.id,ri,v);
         btns.appendChild(btn);
       });
-      row.appendChild(num);
-      row.appendChild(txt);
-      row.appendChild(btns);
+      row.appendChild(num);row.appendChild(txt);row.appendChild(btns);
       card.appendChild(row);
       ri++;
     });
@@ -1564,7 +1491,7 @@ function loadSettingsForm(){
   document.getElementById('cfg-title').value=settings.title||'Academic Coordinator';
   document.getElementById('cfg-sy').value=settings.sy||'2026-2027';
   document.getElementById('cfg-adminpw').value=settings.adminpw||'';
-  document.getElementById('cfg-userpw').value=settings.userpw||'';
+  document.getElementById('cfg-viewerpw').value=settings.viewerpw||'';
 }
 
 function saveSettings(){
@@ -1572,14 +1499,14 @@ function saveSettings(){
   settings.title=document.getElementById('cfg-title').value;
   settings.sy=document.getElementById('cfg-sy').value;
   settings.adminpw=document.getElementById('cfg-adminpw').value||'admin123';
-  settings.userpw=document.getElementById('cfg-userpw').value||'user123';
+  settings.viewerpw=document.getElementById('cfg-viewerpw').value||'viewer123';
   localStorage.setItem('gla_settings',JSON.stringify(settings));
-  applyRoleUI();
-  toast('Settings saved','success');
+  // Update admin profile display
+  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'Viewer';
+  document.getElementById('admin-role-display').textContent=settings.title||'Academic Coordinator';
 }
 
 function clearAll(){
-  if(currentRole!=="admin"){toast("Viewer cannot clear data","error");return;}
   if(!confirm('This will permanently delete ALL ratings and drafts. Are you sure?')) return;
   hist=[]; draft=null;
   localStorage.removeItem('gla_hist');
@@ -1700,7 +1627,90 @@ function _wordViaBrowser(btn){
     r4:{score:r4.score,avg:r4.avg,sub:r4.sub,desc:r4.desc},
     total:total,totalDesc:getDesc(total)};
 
-  var pyCode = '\nimport sys,json,base64,io,re\nfrom docx import Document\nfrom docx.shared import Pt\nfrom docx.oxml.ns import qn\nfrom docx.oxml import OxmlElement\n\ndata=json.loads(sys.argv[1])\nratings=data.get("ratings",{})\ninfo=data.get("info",{})\n\nimport urllib.request,os,tempfile\nurl="https://raw.githubusercontent.com/kayay28/gla-rating/main/template.docx"\ntmp=tempfile.mktemp(suffix=".docx")\ntry:\n  urllib.request.urlretrieve(url,tmp)\n  doc=Document(tmp)\nexcept:\n  doc=Document()\n\ndef fill_para(para,vm):\n  pos=0\n  for run in para.runs:\n    if "_" in run.text:\n      if pos in vm:\n        v=str(vm[pos]);m=re.search(r"_+",run.text)\n        if m:\n          ul=len(m.group())\n          run.text=re.sub(r"_+",v.ljust(ul,"_") if len(v)<=ul else v,run.text,count=1)\n      pos+=1\n\ndef kt(para):\n  pPr=para._p.get_or_add_pPr()\n  for tag in ["w:keepLines","w:keepNext"]:\n    for ex in pPr.findall(qn(tag)): pPr.remove(ex)\n  pPr.append(OxmlElement("w:keepLines"))\n  pPr.append(OxmlElement("w:keepNext"))\n\nr1=info.get("r1",{}); r2=info.get("r2",{}); r3=info.get("r3",{}); r4=info.get("r4",{})\ntotal=info.get("total",""); tdesc=info.get("totalDesc","")\n\ntry:\n  fill_para(doc.paragraphs[5],{0:info.get("name",""),1:info.get("cls","")})\n  fill_para(doc.paragraphs[7],{0:info.get("subj",""),1:info.get("dateobs","")})\n  for pi,r in [(11,r1),(13,r2),(15,r3),(18,r4)]:\n    fill_para(doc.paragraphs[pi],{0:str(r.get("score","")),1:str(r.get("avg","")),2:str(r.get("desc","")),3:str(r.get("sub",""))})\n  fill_para(doc.paragraphs[23],{0:info.get("rater",""),1:info.get("ratedate","")})\n  for run in doc.paragraphs[24].runs: run.text=run.text.replace("School Head",info.get("ptitle","School Head"))\n  fill_para(doc.paragraphs[25],{0:info.get("recv","")})\n  for pi in [19,20,21,23,24,25,26]:\n    try: kt(doc.paragraphs[pi])\n    except: pass\n  for sid,ti in [("s1",0),("s2",1),("s3",2),("s4",3)]:\n    tbl=doc.tables[ti]; ri2=0\n    for row_idx in range(1,len(tbl.rows)):\n      row=tbl.rows[row_idx]\n      if "Demonstrates" in row.cells[0].text: continue\n      sel=int(ratings.get(sid,{}).get(str(ri2),0))\n      for ci,v in enumerate([5,4,3,2,1]):\n        cell=row.cells[ci+1]; p_el=cell.paragraphs[0]._p\n        for r in p_el.findall(qn("w:r")): p_el.remove(r)\n        run=cell.paragraphs[0].add_run("\\u2713" if sel==v else "")\n        run.font.name="Calibri"; run.font.size=Pt(11)\n      ri2+=1\n  st=doc.tables[5]\n  sd=[(r1.get("score",""),r1.get("avg",""),r1.get("sub",""),r1.get("desc","")),\n      (r2.get("score",""),r2.get("avg",""),r2.get("sub",""),r2.get("desc","")),\n      (r3.get("score",""),r3.get("avg",""),r3.get("sub",""),r3.get("desc","")),\n      (r4.get("score",""),r4.get("avg",""),r4.get("sub",""),r4.get("desc","")),\n      ("","",total,tdesc)]\n  for ri3,rd in enumerate(sd):\n    row=st.rows[ri3+1]\n    for ci3,val in enumerate(rd):\n      cell=row.cells[ci3+1]; p_el=cell.paragraphs[0]._p\n      for r in p_el.findall(qn("w:r")): p_el.remove(r)\n      run=cell.paragraphs[0].add_run(str(val))\n      run.font.name="Calibri"; run.font.size=Pt(11)\n      if ri3==4: run.bold=True\nexcept Exception as e:\n  pass\n\nbuf=io.BytesIO(); doc.save(buf); buf.seek(0)\nprint(base64.b64encode(buf.read()).decode())\n';
+  var pyCode = `
+import sys,json,base64,io,re
+from docx import Document
+from docx.shared import Pt
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+
+data=json.loads(sys.argv[1])
+ratings=data.get("ratings",{})
+info=data.get("info",{})
+
+import urllib.request,os,tempfile
+url="https://raw.githubusercontent.com/kayay28/gla-rating/main/template.docx"
+tmp=tempfile.mktemp(suffix=".docx")
+try:
+  urllib.request.urlretrieve(url,tmp)
+  doc=Document(tmp)
+except:
+  doc=Document()
+
+def fill_para(para,vm):
+  pos=0
+  for run in para.runs:
+    if "_" in run.text:
+      if pos in vm:
+        v=str(vm[pos]);m=re.search(r"_+",run.text)
+        if m:
+          ul=len(m.group())
+          run.text=re.sub(r"_+",v.ljust(ul,"_") if len(v)<=ul else v,run.text,count=1)
+      pos+=1
+
+def kt(para):
+  pPr=para._p.get_or_add_pPr()
+  for tag in ["w:keepLines","w:keepNext"]:
+    for ex in pPr.findall(qn(tag)): pPr.remove(ex)
+  pPr.append(OxmlElement("w:keepLines"))
+  pPr.append(OxmlElement("w:keepNext"))
+
+r1=info.get("r1",{}); r2=info.get("r2",{}); r3=info.get("r3",{}); r4=info.get("r4",{})
+total=info.get("total",""); tdesc=info.get("totalDesc","")
+
+try:
+  fill_para(doc.paragraphs[5],{0:info.get("name",""),1:info.get("cls","")})
+  fill_para(doc.paragraphs[7],{0:info.get("subj",""),1:info.get("dateobs","")})
+  for pi,r in [(11,r1),(13,r2),(15,r3),(18,r4)]:
+    fill_para(doc.paragraphs[pi],{0:str(r.get("score","")),1:str(r.get("avg","")),2:str(r.get("desc","")),3:str(r.get("sub",""))})
+  fill_para(doc.paragraphs[23],{0:info.get("rater",""),1:info.get("ratedate","")})
+  for run in doc.paragraphs[24].runs: run.text=run.text.replace("School Head",info.get("ptitle","School Head"))
+  fill_para(doc.paragraphs[25],{0:info.get("recv","")})
+  for pi in [19,20,21,23,24,25,26]:
+    try: kt(doc.paragraphs[pi])
+    except: pass
+  for sid,ti in [("s1",0),("s2",1),("s3",2),("s4",3)]:
+    tbl=doc.tables[ti]; ri2=0
+    for row_idx in range(1,len(tbl.rows)):
+      row=tbl.rows[row_idx]
+      if "Demonstrates" in row.cells[0].text: continue
+      sel=int(ratings.get(sid,{}).get(str(ri2),0))
+      for ci,v in enumerate([5,4,3,2,1]):
+        cell=row.cells[ci+1]; p_el=cell.paragraphs[0]._p
+        for r in p_el.findall(qn("w:r")): p_el.remove(r)
+        run=cell.paragraphs[0].add_run("\u2713" if sel==v else "")
+        run.font.name="Calibri"; run.font.size=Pt(11)
+      ri2+=1
+  st=doc.tables[5]
+  sd=[(r1.get("score",""),r1.get("avg",""),r1.get("sub",""),r1.get("desc","")),
+      (r2.get("score",""),r2.get("avg",""),r2.get("sub",""),r2.get("desc","")),
+      (r3.get("score",""),r3.get("avg",""),r3.get("sub",""),r3.get("desc","")),
+      (r4.get("score",""),r4.get("avg",""),r4.get("sub",""),r4.get("desc","")),
+      ("","",total,tdesc)]
+  for ri3,rd in enumerate(sd):
+    row=st.rows[ri3+1]
+    for ci3,val in enumerate(rd):
+      cell=row.cells[ci3+1]; p_el=cell.paragraphs[0]._p
+      for r in p_el.findall(qn("w:r")): p_el.remove(r)
+      run=cell.paragraphs[0].add_run(str(val))
+      run.font.name="Calibri"; run.font.size=Pt(11)
+      if ri3==4: run.bold=True
+except Exception as e:
+  pass
+
+buf=io.BytesIO(); doc.save(buf); buf.seek(0)
+print(base64.b64encode(buf.read()).decode())
+`;
 
   fetch("https://api.anthropic.com/v1/messages",{
     method:"POST",
@@ -1797,81 +1807,26 @@ function copyWebUrl(){
 
 // ── INIT ──
 function initApp(){
-  // Sidebar profile
-  var isAdmin = currentRole==='admin';
-  document.getElementById('admin-av').textContent = isAdmin ? 'A' : 'U';
-  document.getElementById('admin-name-display').textContent = isAdmin ? 'Admin' : 'User';
-  document.getElementById('admin-role-display').textContent = settings.title||'Academic Coordinator';
-
-  // Dark mode restore
+  // Update admin info
+  document.getElementById('admin-av').textContent=currentRole==='admin'?'A':'V';
+  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'Viewer';
+  document.getElementById('admin-role-display').textContent=settings.title||'Academic Coordinator';
+  // Dark mode
   if(localStorage.getItem('gla_dark')==='1'){
     document.body.classList.add('dark');
-    var db = document.getElementById('dark-btn');
-    if(db) db.textContent='Light';
+    document.getElementById('dark-btn').textContent='☀️';
   }
-
-  // Apply viewer restrictions
-  applyRoleUI();
-
-  // Restore draft badge
-  if(draft) document.getElementById('draft-badge').style.display='inline';
-
-  // Load dashboard
+  // Greeting
   renderDashboard();
-}
-
-function applyRoleUI(){
-  var isAdmin = currentRole==='admin';
-  // Topbar viewer badge
-  var vb = document.getElementById('viewer-badge');
-  if(vb) vb.style.display = isAdmin ? 'none' : 'flex';
-  // Sidebar role + avatar
-  var roleEl = document.getElementById('admin-role-display');
-  if(roleEl) roleEl.textContent = (isAdmin?'Admin':'User')+' — '+(settings.title||'Academic Coordinator');
-  var av = document.getElementById('admin-av');
-  if(av){
-    av.textContent = isAdmin ? 'A' : 'U';
-    av.style.background = isAdmin ? 'linear-gradient(135deg,var(--red),var(--red2))' : 'linear-gradient(135deg,var(--green),#047857)';
+  // Draft badge
+  if(draft){
+    document.getElementById('draft-badge').style.display='inline';
   }
-  // Mark body with role for CSS
-  document.body.dataset.role = currentRole;
-
-  // ── ADMIN-ONLY UI elements ──
-  // Delete buttons in history table — handled in renderHistory
-  // Delete/clear in settings
-  var clearBtn = document.querySelector('button[onclick="clearAll()"]');
-  if(clearBtn) clearBtn.style.display = isAdmin ? '' : 'none';
-  // Hide password settings for user
-  var pwSection = document.getElementById('pw-settings');
-  if(pwSection) pwSection.style.display = isAdmin ? '' : 'none';
-}
-();
-}
-
-function applyRoleUI(){
-  var isAdmin = currentRole==='admin';
-  // Topbar viewer badge
-  var vb = document.getElementById('viewer-badge');
-  if(vb) vb.style.display = isAdmin ? 'none' : 'flex';
-  // Sidebar role + avatar
-  var roleEl = document.getElementById('admin-role-display');
-  if(roleEl) roleEl.textContent = (isAdmin?'Admin':'User')+' — '+(settings.title||'Academic Coordinator');
-  var av = document.getElementById('admin-av');
-  if(av){
-    av.textContent = isAdmin ? 'A' : 'U';
-    av.style.background = isAdmin ? 'linear-gradient(135deg,var(--red),var(--red2))' : 'linear-gradient(135deg,var(--green),#047857)';
+  // Viewer restrictions
+  if(currentRole==='viewer'){
+    // Hide new rating button and edit features
+    document.querySelector('.btn-primary[onclick*="new-rating"]').style.display='none';
   }
-  // Mark body with role for CSS
-  document.body.dataset.role = currentRole;
-
-  // ── ADMIN-ONLY UI elements ──
-  // Delete buttons in history table — handled in renderHistory
-  // Delete/clear in settings
-  var clearBtn = document.querySelector('button[onclick="clearAll()"]');
-  if(clearBtn) clearBtn.style.display = isAdmin ? '' : 'none';
-  // Hide password settings for user
-  var pwSection = document.getElementById('pw-settings');
-  if(pwSection) pwSection.style.display = isAdmin ? '' : 'none';
 }
 </script>
 </body>
