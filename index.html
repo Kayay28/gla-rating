@@ -516,16 +516,31 @@ button.role-btn:focus{border-color:var(--red);}
       <input type="password" class="login-input" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
 
-    <button class="login-btn" onclick="doLogin()">🔐 Sign In</button>
+    <button class="login-btn" onclick="doLogin()">&#128274; Log In</button>
 
-    <div style="text-align:center;margin-top:12px;">
-      <button onclick="guestLogin()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;">
-        Continue without password →
-      </div>
+    <div style="text-align:center;margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+      <button onclick="guestLogin()" style="background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">
+        &#43; Sign Up (Continue as Guest)
+      </button>
+      <button onclick="showForgotPassword()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;">
+        Forgot Password?
+      </button>
     </div>
-    <div class="login-footer" style="margin-top:8px;">
-      Admin: <b>admin123</b> &nbsp;&bull;&nbsp; User: <b>user123</b><br>
-      <span style="font-size:10px;margin-top:4px;display:block;">Or leave blank and press Sign In to enter</span>
+
+    <div class="login-footer" style="margin-top:12px;">
+      Admin: <b>admin123</b> &nbsp;&bull;&nbsp; User: <b>user123</b>
+    </div>
+
+    <!-- Forgot Password panel (hidden by default) -->
+    <div id="forgot-panel" style="display:none;margin-top:14px;background:#F8FAFC;border-radius:10px;padding:14px;border:1px solid var(--pale);">
+      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;">&#128274; Password Hint</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">
+        Default passwords:<br>
+        &bull; <b>Admin:</b> admin123<br>
+        &bull; <b>User:</b> user123<br><br>
+        To change passwords, log in as Admin and go to <b>Settings &#8594; Security</b>.
+      </div>
+      <button onclick="document.getElementById('forgot-panel').style.display='none'" style="margin-top:10px;background:none;border:1px solid var(--pale);border-radius:6px;padding:5px 14px;font-size:12px;cursor:pointer;color:var(--muted);font-family:inherit;">Close</button>
     </div>
   </div>
 </div>
@@ -821,27 +836,7 @@ button.role-btn:focus{border-color:var(--red);}
     </div>
     <div class="settings-section">
       <h3>🎨 Appearance</h3>
-      <div class="settings-row"><div><div class="lbl">Dark Mode</div><div class="sub">Toggle dark/light theme</div></div><button class="btn btn-outline btn-sm" onclick="toggleDark()">🌙 Toggle Dark Mode</button></div>
-    </div>
-    <div class="settings-section" id="admin-data-section">
-      <h3>Data Management</h3>
-      <div class="settings-row"><div><div class="lbl">Clear All Ratings &amp; Drafts</div><div class="sub" style="color:var(--red)">This cannot be undone</div></div><button class="btn btn-danger btn-sm" onclick="clearAll()">Clear All</button></div>
-      <div class="settings-row"><div><div class="lbl">Sign Out</div><div class="sub">Return to login screen</div></div><button class="btn btn-outline btn-sm" onclick="doLogout()">Sign Out</button></div>
-    </div>
-    <div style="margin-top:8px;text-align:center;font-size:11px;color:var(--light);padding:12px;">
-      GLA Rating System v3.0 &bull; GreAtMinds Leadership Academy &bull; 2026
-    </div>
-  </div>
-
-</main>
-</div>
-
-<!-- Service Worker -->
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
-var deferredPrompt;
-window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;document.getElementById('install-wrap').style.display='flex';});</script>
-
-<script>
+      <div class="settings-row"><div><div class="lbl">Dark Mode</div><div class="sub">Toggle dark/light theme</div></div><button class="btn btn-outline btn-sm" 
 // ══════════════════════════════════════════════════
 // GLA RATING SYSTEM v3.0
 // GreAtMinds Leadership Academy
@@ -889,6 +884,11 @@ function sP(el){showPage(el.dataset.p||el.getAttribute('data-p'));}
 function qR(el){quickRate(el.getAttribute('data-n'));}
 function dT(el){deleteTeacher(parseInt(el.getAttribute('data-i')));}
 
+function showForgotPassword(){
+  var panel = document.getElementById('forgot-panel');
+  if(panel) panel.style.display = panel.style.display==='none' ? 'block' : 'none';
+}
+
 function guestLogin(){
   currentRole='user';
   document.getElementById('login-page').style.display='none';
@@ -901,7 +901,7 @@ function doLogin(){
   var role = getSelectedRole();
   // Get passwords with multiple fallbacks
   var adminpw = (settings&&settings.adminpw) ? settings.adminpw : 'admin123';
-  var viewerpw = (settings&&settings.userpw) ? settings.userpw : 'viewer123';
+  var userpw = (settings&&settings.userpw) ? settings.userpw : 'user123';
   var correct = role==='admin' ? adminpw : userpw;
   // Also allow empty password to work as guest
   if(pass==='' || pass===correct){
@@ -1043,7 +1043,7 @@ function renderDashboard(){
   // Recent ratings
   var rl=document.getElementById('recent-list');
   if(!hist.length){
-    rl.innerHTML='<div class="empty-state"><div class="es-icon">📋</div><div class="es-title">No ratings yet</div><div class="es-sub"><button class="btn btn-primary btn-sm" onclick="showPage(&#39;new-rating&#39;)" style="margin-top:8px;">+ Create First Rating</button></div></div>';
+    rl.innerHTML='<div class="empty-state"><div class="es-icon">&#128203;</div><div class="es-title">No ratings yet</div><div class="es-sub">Go to New Rating to create one</div></div>';
   } else {
     rl.innerHTML=hist.slice(0,5).map(function(r){
       return '<div class="ri"><div class="ri-av" style="background:'+getAvatarColor(r.name)+'">'+getInitials(r.name)+'</div>'
@@ -1572,7 +1572,7 @@ function saveSettings(){
   settings.title=document.getElementById('cfg-title').value;
   settings.sy=document.getElementById('cfg-sy').value;
   settings.adminpw=document.getElementById('cfg-adminpw').value||'admin123';
-  settings.userpw=document.getElementById('cfg-userpw').value||'viewer123';
+  settings.userpw=document.getElementById('cfg-userpw').value||'user123';
   localStorage.setItem('gla_settings',JSON.stringify(settings));
   applyRoleUI();
   toast('Settings saved','success');
@@ -1818,6 +1818,34 @@ function initApp(){
 
   // Load dashboard
   renderDashboard();
+}
+
+function applyRoleUI(){
+  var isAdmin = currentRole==='admin';
+  // Topbar viewer badge
+  var vb = document.getElementById('viewer-badge');
+  if(vb) vb.style.display = isAdmin ? 'none' : 'flex';
+  // Sidebar role + avatar
+  var roleEl = document.getElementById('admin-role-display');
+  if(roleEl) roleEl.textContent = (isAdmin?'Admin':'User')+' — '+(settings.title||'Academic Coordinator');
+  var av = document.getElementById('admin-av');
+  if(av){
+    av.textContent = isAdmin ? 'A' : 'U';
+    av.style.background = isAdmin ? 'linear-gradient(135deg,var(--red),var(--red2))' : 'linear-gradient(135deg,var(--green),#047857)';
+  }
+  // Mark body with role for CSS
+  document.body.dataset.role = currentRole;
+
+  // ── ADMIN-ONLY UI elements ──
+  // Delete buttons in history table — handled in renderHistory
+  // Delete/clear in settings
+  var clearBtn = document.querySelector('button[onclick="clearAll()"]');
+  if(clearBtn) clearBtn.style.display = isAdmin ? '' : 'none';
+  // Hide password settings for user
+  var pwSection = document.getElementById('pw-settings');
+  if(pwSection) pwSection.style.display = isAdmin ? '' : 'none';
+}
+();
 }
 
 function applyRoleUI(){
