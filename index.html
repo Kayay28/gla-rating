@@ -425,27 +425,41 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);min-h
 
 <!-- QR MODAL -->
 <div class="modal-overlay" id="qr-modal">
-  <div class="modal">
+  <div class="modal" style="max-width:520px;width:95%">
     <div class="modal-hdr">
-      <h3>&#128247; QR Codes</h3>
+      <h3>&#128247; QR Code — GLA Rating App</h3>
       <button class="modal-close-btn" onclick="closeModal('qr-modal')">&#x2715;</button>
     </div>
-    <p class="modal-sub">Scan to open or share the GLA Rating App</p>
-    <div class="qr-grid">
-      <div class="qr-item">
-        <div class="qr-label">&#128279; Open Web App</div>
-        <div class="qr-box" id="qr-web"></div>
-        <div class="qr-url" id="qr-web-url"></div>
+
+    <!-- App preview header -->
+    <div style="background:linear-gradient(135deg,#C0392B,#922B21);border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;color:#fff;">
+      <div style="font-size:13px;opacity:0.85;margin-bottom:4px;">&#127979; GreAtMinds Leadership Academy</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px;">GLA Teacher Performance Rating</div>
+      <div style="font-size:11px;opacity:0.75;" id="qr-web-url">Loading...</div>
+    </div>
+
+    <!-- QR Codes side by side -->
+    <div style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">
+      <div style="text-align:center;flex:1;">
+        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">&#128279; Open App</div>
+        <div id="qr-web" style="display:inline-block;background:#fff;padding:8px;border-radius:8px;border:2px solid #e5e7eb;"></div>
+        <div style="font-size:10px;color:#9ca3af;margin-top:6px;">Scan to open on phone</div>
       </div>
-      <div class="qr-item">
-        <div class="qr-label">&#128203; Current Sheet</div>
-        <div class="qr-box" id="qr-sheet"></div>
-        <div class="qr-url" style="color:#6B7280;">Rating summary encoded</div>
+      <div style="text-align:center;flex:1;">
+        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">&#128203; Current Rating</div>
+        <div id="qr-sheet" style="display:inline-block;background:#fff;padding:8px;border-radius:8px;border:2px solid #fee2e2;"></div>
+        <div style="font-size:10px;color:#9ca3af;margin-top:6px;">Rating summary encoded</div>
       </div>
     </div>
-    <div class="modal-footer">
+
+    <!-- Install hint -->
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#166534;">
+      <b>&#128241; Install as App:</b> On Android — tap &#8942; menu → <em>Add to Home Screen</em>. On iPhone — tap &#9989; Share → <em>Add to Home Screen</em>.
+    </div>
+
+    <div class="modal-footer" style="gap:8px;">
+      <button class="btn btn-primary btn-sm" onclick="copyWebUrl()">&#128203; Copy Link</button>
       <button class="btn btn-outline btn-sm" onclick="closeModal('qr-modal')">Close</button>
-      <button class="btn btn-primary btn-sm" onclick="copyWebUrl()">&#128203; Copy App Link</button>
     </div>
   </div>
 </div>
@@ -1505,41 +1519,61 @@ print(base64.b64encode(buf.read()).decode())
 function showQR(){
   var webUrl = (window.location.protocol === "file:" ? "http://localhost:5050" : window.location.origin + window.location.pathname);
   document.getElementById("qr-web-url").textContent = webUrl;
-  document.getElementById("qr-modal").classList.add("open");
+  openModal("qr-modal");
 
-  function loadQR(cb){
-    if(typeof QRCode !== "undefined"){ cb(); return; }
-    var s = document.getElementById("qrjs");
-    if(!s){
-      s = document.createElement("script");
-      s.id = "qrjs";
-      s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
-      s.onload = cb;
-      document.head.appendChild(s);
-    } else { setTimeout(function(){ if(typeof QRCode!=="undefined") cb(); else setTimeout(cb,800); }, 200); }
-  }
-
-  loadQR(function(){
-    // QR 1: Web App URL (black)
+  function renderQR(){
+    // QR 1: Web App URL
     var webDiv = document.getElementById("qr-web");
     webDiv.innerHTML = "";
     try {
-      new QRCode(webDiv, { text: webUrl, width: 160, height: 160, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
-    } catch(e){ webDiv.innerHTML = "<p style='font-size:11px;color:#666;padding:10px;'>QR unavailable</p>"; }
+      new QRCode(webDiv, {
+        text: webUrl,
+        width: 150, height: 150,
+        colorDark: "#1e293b",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(e){
+      webDiv.innerHTML = "<p style='color:#888;font-size:11px;padding:20px;text-align:center'>QR Error: "+e.message+"</p>";
+    }
 
-    // QR 2: Rating sheet summary (red)
+    // QR 2: Rating summary
     var sheetDiv = document.getElementById("qr-sheet");
     sheetDiv.innerHTML = "";
     try {
-      var name = document.getElementById("i-name") ? document.getElementById("i-name").value : "";
-      var r1 = calcSec("s1",0.40); var r2 = calcSec("s2",0.20);
-      var r3 = calcSec("s3",0.20); var r4 = calcSec("s4",0.20);
+      var name = (document.getElementById("i-name")||{}).value || "Teacher";
+      var r1=calcSec("s1",0.40), r2=calcSec("s2",0.20), r3=calcSec("s3",0.20), r4=calcSec("s4",0.20);
       var total = +(r1.sub+r2.sub+r3.sub+r4.sub).toFixed(2);
-      var summary = webUrl + "?t=" + encodeURIComponent(name||"GLA Rating") + "&score=" + total;
-      new QRCode(sheetDiv, { text: summary, width: 160, height: 160, colorDark: "#b71c1c", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
-    } catch(e){ sheetDiv.innerHTML = "<p style='font-size:11px;color:#666;padding:10px;'>QR unavailable</p>"; }
-  });
+      var summary = "GLA Rating | "+name+" | Total: "+total+" | "+getDesc(total);
+      new QRCode(sheetDiv, {
+        text: summary,
+        width: 150, height: 150,
+        colorDark: "#991b1b",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(e){
+      sheetDiv.innerHTML = "<p style='color:#888;font-size:11px;padding:20px;text-align:center'>QR Error: "+e.message+"</p>";
+    }
+  }
+
+  // Load QR library
+  if(typeof QRCode !== "undefined"){
+    renderQR();
+  } else {
+    var existing = document.getElementById("qrjs");
+    if(existing) existing.remove();
+    var s = document.createElement("script");
+    s.id = "qrjs";
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+    s.onload = function(){ setTimeout(renderQR, 100); };
+    s.onerror = function(){
+      document.getElementById("qr-web").innerHTML = "<p style='color:#888;font-size:11px;padding:10px;text-align:center'>Failed to load QR library.<br>Check internet connection.</p>";
+    };
+    document.head.appendChild(s);
+  }
 }
+
 
 function copyWebUrl(){
   var url = (window.location.protocol === "file:" ? "http://localhost:5050" : window.location.origin + window.location.pathname);
