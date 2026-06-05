@@ -988,8 +988,8 @@ function toast(msg,type){
   var c=document.getElementById('toast-container');
   var t=document.createElement('div');
   t.className='toast toast-'+(type||'info');
-  var icons={'success':'✅','error':'❌','info':'ℹ️','warning':'⚠️'};
-  t.innerHTML=(icons[type]||'ℹ️')+' '+msg;
+  var icons={'success':'OK','error':'ERR','info':'INFO','warning':'WARN'};
+  t.innerHTML=msg;
   c.appendChild(t);
   setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},3500);
 }
@@ -1005,7 +1005,7 @@ function toggleDark(){
 function renderDashboard(){
   var h=document.getElementById('welcome-greeting');
   var hr=new Date().getHours();
-  var greet=hr<12?'Good morning! ☀️':hr<17?'Good afternoon! 🌤️':'Good evening! 🌙';
+  var greet=hr<12?'Good morning!':hr<17?'Good afternoon!':'Good evening!';
   h.textContent=greet;
 
   document.getElementById('s-total').textContent=hist.length;
