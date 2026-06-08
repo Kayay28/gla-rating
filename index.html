@@ -842,6 +842,198 @@ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();def
 
 <script>
 // ══════════════════════════════════════════════════
+// SUPABASE CLOUD SYNC
+// ══════════════════════════════════════════════════
+var SUPA_URL = "https://zgpknbachlayjtcbaaov.supabase.co";
+var SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncGtuYmFjaGxheWp0Y2JhYW92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODkxNzEsImV4cCI6MjA5NjI2NTE3MX0.e4ft2Xmesu6PYHA7jGcn7Xw4JE5dQqO3gvC1h1A5npY";
+
+function supaHeaders(){
+  return {
+    "Content-Type": "application/json",
+    "apikey": SUPA_KEY,
+    "Authorization": "Bearer " + SUPA_KEY,
+    "Prefer": "return=representation"
+  };
+}
+
+function supaGet(table, params){
+  var url = SUPA_URL + "/rest/v1/" + table + (params ? "?" + params : "?order=created_at.desc");
+  return fetch(url, {method:"GET", headers:supaHeaders()})
+    .then(function(r){return r.json();})
+    .catch(function(){return null;});
+}
+
+function supaInsert(table, data){
+  return fetch(SUPA_URL + "/rest/v1/" + table, {
+    method:"POST", headers:supaHeaders(), body:JSON.stringify(data)
+  }).then(function(r){return r.json();}).catch(function(){return null;});
+}
+
+function supaUpdate(table, data, match){
+  return fetch(SUPA_URL + "/rest/v1/" + table + "?" + match, {
+    method:"PATCH", headers:supaHeaders(), body:JSON.stringify(data)
+  }).then(function(r){return r.json();}).catch(function(){return null;});
+}
+
+function supaDelete(table, match){
+  return fetch(SUPA_URL + "/rest/v1/" + table + "?" + match, {
+    method:"DELETE", headers:supaHeaders()
+  }).then(function(r){return r.ok;}).catch(function(){return false;});
+}
+
+// ── SYNC: Load all data from Supabase on login ──
+function syncFromCloud(){
+  toast("Syncing from cloud...", "info");
+  var promises = [
+    supaGet("gla_ratings"),
+    supaGet("gla_teachers"),
+    supaGet("gla_settings", "id=eq.global")
+  ];
+  Promise.all(promises).then(function(results){
+    var cloudRatings = results[0];
+    var cloudTeachers = results[1];
+    var cloudSettings = results[2];
+
+    if(cloudRatings && Array.isArray(cloudRatings)){
+      hist = cloudRatings.map(function(r){
+        return {
+          name: r.name,
+          advisoryClass: r.advisory_class||"",
+          subj: r.subj||"",
+          sy: r.sy||"",
+          quarter: r.quarter||"",
+          dateobs: r.date_obs||"",
+          rater: r.rater||"",
+          title: r.title||"",
+          ratedate: r.ratedate||"",
+          recv: r.recv||"",
+          r1: r.r1||{},
+          r2: r.r2||{},
+          r3: r.r3||{},
+          r4: r.r4||{},
+          total: r.total||0,
+          totalDesc: r.total_desc||"",
+          ratings: r.ratings||{},
+          photo: r.photo||null,
+          dateRated: r.date_rated||"",
+          _id: r.id
+        };
+      });
+      localStorage.setItem("gla_hist", JSON.stringify(hist));
+    }
+
+    if(cloudTeachers && Array.isArray(cloudTeachers)){
+      teachers = cloudTeachers.map(function(t){
+        return {
+          name: t.name,
+          dept: t.dept||"",
+          advisoryClass: t.advisory_class||"",
+          subjects: t.subjects||"",
+          photo: t.photo||null,
+          _id: t.id
+        };
+      });
+      localStorage.setItem("gla_teachers", JSON.stringify(teachers));
+    }
+
+    if(cloudSettings && cloudSettings[0]){
+      var cs = cloudSettings[0];
+      settings.rater = cs.rater||settings.rater;
+      settings.title = cs.title||settings.title;
+      settings.sy = cs.sy||settings.sy;
+      settings.adminpw = cs.adminpw||settings.adminpw;
+      settings.userpw = cs.userpw||settings.userpw;
+      localStorage.setItem("gla_settings", JSON.stringify(settings));
+    }
+
+    toast("Synced from cloud!", "success");
+    renderDashboard();
+    // Update badge counts
+    var hb = document.getElementById("hist-badge");
+    if(hb) hb.textContent = hist.length;
+  }).catch(function(){
+    toast("Offline — using local data", "warning");
+  });
+}
+
+// ── SYNC: Save rating to cloud ──
+function syncRatingToCloud(entry){
+  var data = {
+    name: entry.name,
+    advisory_class: entry.advisoryClass||"",
+    subj: entry.subj||"",
+    sy: entry.sy||"",
+    quarter: entry.quarter||"",
+    date_obs: entry.dateobs||"",
+    rater: entry.rater||"",
+    title: entry.title||"",
+    ratedate: entry.ratedate||"",
+    recv: entry.recv||"",
+    r1: entry.r1||{},
+    r2: entry.r2||{},
+    r3: entry.r3||{},
+    r4: entry.r4||{},
+    total: parseFloat(entry.total)||0,
+    total_desc: entry.totalDesc||"",
+    ratings: entry.ratings||{},
+    photo: entry.photo||null,
+    date_rated: entry.dateRated||""
+  };
+  supaInsert("gla_ratings", data).then(function(res){
+    if(res && res[0] && res[0].id){
+      // Store the cloud ID back
+      entry._id = res[0].id;
+      localStorage.setItem("gla_hist", JSON.stringify(hist));
+    }
+  });
+}
+
+// ── SYNC: Save teacher to cloud ──
+function syncTeacherToCloud(teacher){
+  var data = {
+    name: teacher.name,
+    dept: teacher.dept||"",
+    advisory_class: teacher.advisoryClass||"",
+    subjects: teacher.subjects||"",
+    photo: teacher.photo||null
+  };
+  supaInsert("gla_teachers", data).then(function(res){
+    if(res && res[0] && res[0].id){
+      teacher._id = res[0].id;
+      localStorage.setItem("gla_teachers", JSON.stringify(teachers));
+    }
+  });
+}
+
+// ── SYNC: Delete rating from cloud ──
+function syncDeleteRating(entry){
+  if(entry && entry._id){
+    supaDelete("gla_ratings", "id=eq." + entry._id);
+  }
+}
+
+// ── SYNC: Delete teacher from cloud ──
+function syncDeleteTeacher(teacher){
+  if(teacher && teacher._id){
+    supaDelete("gla_teachers", "id=eq." + teacher._id);
+  }
+}
+
+// ── SYNC: Save settings to cloud ──
+function syncSettingsToCloud(){
+  var data = {
+    rater: settings.rater||"",
+    title: settings.title||"",
+    sy: settings.sy||"",
+    adminpw: settings.adminpw||"admin123",
+    userpw: settings.userpw||"user123",
+    updated_at: new Date().toISOString()
+  };
+  supaUpdate("gla_settings", data, "id=eq.global");
+}
+
+
+// ══════════════════════════════════════════════════
 // GLA RATING SYSTEM v3.0
 // GreAtMinds Leadership Academy
 // ══════════════════════════════════════════════════
@@ -1198,8 +1390,9 @@ function renderHistory(){
 
 function deleteRating(idx){
   if(!confirm('Delete this rating?')) return;
-  hist.splice(idx,1);
+  var deleted=hist.splice(idx,1)[0];
   localStorage.setItem('gla_hist',JSON.stringify(hist));
+  syncDeleteRating(deleted);
   renderHistory();
   toast('Rating deleted','success');
 }
@@ -1246,6 +1439,7 @@ function doAddTeacher(){
   if(teachers.find(function(t){return t.name.toLowerCase()===name.toLowerCase();})){toast('Teacher already exists','error');return;}
   teachers.push({name:name,dept:document.getElementById('t-dept').value.trim(),advisoryClass:document.getElementById('t-class').value.trim(),subjects:document.getElementById('t-subj').value.trim(),photo:teacherPhotoData||null});
   localStorage.setItem('gla_teachers',JSON.stringify(teachers));
+  syncTeacherToCloud(teachers[teachers.length-1]);
   closeModal('teacher-modal');
   ['t-name','t-dept','t-class','t-subj'].forEach(function(id){document.getElementById(id).value='';}); resetTeacherPhotoPreview();
   renderTeachers();
@@ -1255,8 +1449,9 @@ function doAddTeacher(){
 
 function deleteTeacher(idx){
   if(!confirm('Remove this teacher?')) return;
-  teachers.splice(idx,1);
+  var deletedT=teachers.splice(idx,1)[0];
   localStorage.setItem('gla_teachers',JSON.stringify(teachers));
+  syncDeleteTeacher(deletedT);
   renderTeachers();
   document.getElementById('s-teachers').textContent=teachers.length;
   toast('Teacher removed','success');
@@ -1597,6 +1792,7 @@ function generateSheet(){
   };
   hist.unshift(entry);
   localStorage.setItem('gla_hist',JSON.stringify(hist));
+  syncRatingToCloud(entry);
   draft=null; localStorage.removeItem('gla_draft');
   document.getElementById('draft-badge').style.display='none';
   toast('Rating saved! Score: '+total+' ('+getDesc(total)+')','success');
