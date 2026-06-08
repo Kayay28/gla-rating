@@ -4,7 +4,7 @@ from docx import Document
 from docx.shared import Pt
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
-import io, os, re, webbrowser, threading, time, base64
+import io, os, re, webbrowser, threading, time
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
@@ -135,28 +135,6 @@ def make_doc(data):
     ])
 
     # Checkmarks - use backslash '\' like reference file (default Calibri)
-    # Teacher photo in header (if provided)
-    if data.get("info",{}).get("photo"):
-        try:
-            import io as _io
-            from docx.shared import Inches
-            photo_b64 = data["info"]["photo"]
-            # Remove data URL prefix
-            if "," in photo_b64:
-                photo_b64 = photo_b64.split(",")[1]
-            photo_bytes = base64.b64decode(photo_b64)
-            photo_stream = _io.BytesIO(photo_bytes)
-            # Add to paragraph 4 (after title) - right-aligned
-            from docx.enum.text import WD_ALIGN_PARAGRAPH
-            try:
-                p_photo = doc.paragraphs[4]
-                run_photo = p_photo.add_run()
-                run_photo.add_picture(photo_stream, width=Inches(0.7))
-                p_photo.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            except: pass
-        except Exception as pe:
-            pass  # Photo optional - don't break if it fails
-
     for sid,ti in [("s1",0),("s2",1),("s3",2),("s4",3)]:
         tbl=doc.tables[ti]; ri2=0
         for row_idx in range(1,len(tbl.rows)):

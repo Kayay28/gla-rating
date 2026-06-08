@@ -459,20 +459,6 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
 .rating-sec-hdr{background:linear-gradient(135deg,#0F172A,#1E293B);color:#fff;padding:11px 16px;display:flex;align-items:center;gap:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;}
 .live-score{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;}
 .rb-row{display:flex;gap:6px;flex-wrap:wrap;}
-
-/* ── PROFILE PHOTOS ── */
-.profile-photo-circle{
-  width:72px;height:72px;border-radius:50%;
-  background:linear-gradient(135deg,var(--red),var(--red2));
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;font-weight:700;color:#fff;flex-shrink:0;
-  overflow:hidden;cursor:pointer;position:relative;box-shadow:var(--sh-red);
-}
-.profile-photo-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-.profile-photo-wrap{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--pale);}
-.profile-photo-info .change-btn{font-size:12px;color:var(--red);font-weight:600;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;margin-top:6px;display:inline-block;}
-.tc-av img{width:100%;height:100%;object-fit:cover;border-radius:12px;}
-.admin-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 </style>
 </head>
 <body>
@@ -567,21 +553,8 @@ body.dark input,body.dark select,body.dark textarea{background:#0F172A;border-co
       <button class="modal-close-btn" onclick="closeModal('teacher-modal')">&#x2715;</button>
     </div>
     <p class="modal-sub">Add a teacher to the GLA faculty list</p>
-    <div style="padding:16px 22px 0;display:flex;align-items:center;gap:14px;margin-bottom:4px;">
-      <div id="t-photo-preview" onclick="document.getElementById('t-photo-input').click()"
-        style="width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));
-        display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;
-        position:relative;box-shadow:var(--sh-red);" title="Click to upload photo">
-        <span id="t-photo-initial" style="color:#fff;font-size:22px;">&#128247;</span>
-      </div>
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--dark);">Profile Photo</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Click circle to upload</div>
-        <input type="file" id="t-photo-input" accept="image/*" style="display:none" onchange="previewTeacherPhoto(this)">
-      </div>
-    </div>
     <div class="teacher-form-grid">
-      <div class="field f-full"><label>Full Name</label><input id="t-name" type="text" placeholder="e.g. Maria Santos" oninput="updateTeacherInitial()"></div>
+      <div class="field f-full"><label>Full Name</label><input id="t-name" type="text" placeholder="e.g. Maria Santos"></div>
       <div class="field"><label>Department</label><input id="t-dept" type="text" placeholder="e.g. Science"></div>
       <div class="field"><label>Advisory Class</label><input id="t-class" type="text" placeholder="e.g. Grade 7A"></div>
       <div class="field f-full"><label>Subjects Handled</label><input id="t-subj" type="text" placeholder="e.g. Math, Science"></div>
@@ -842,198 +815,6 @@ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();def
 
 <script>
 // ══════════════════════════════════════════════════
-// SUPABASE CLOUD SYNC
-// ══════════════════════════════════════════════════
-var SUPA_URL = "https://zgpknbachlayjtcbaaov.supabase.co";
-var SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncGtuYmFjaGxheWp0Y2JhYW92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODkxNzEsImV4cCI6MjA5NjI2NTE3MX0.e4ft2Xmesu6PYHA7jGcn7Xw4JE5dQqO3gvC1h1A5npY";
-
-function supaHeaders(){
-  return {
-    "Content-Type": "application/json",
-    "apikey": SUPA_KEY,
-    "Authorization": "Bearer " + SUPA_KEY,
-    "Prefer": "return=representation"
-  };
-}
-
-function supaGet(table, params){
-  var url = SUPA_URL + "/rest/v1/" + table + (params ? "?" + params : "?order=created_at.desc");
-  return fetch(url, {method:"GET", headers:supaHeaders()})
-    .then(function(r){return r.json();})
-    .catch(function(){return null;});
-}
-
-function supaInsert(table, data){
-  return fetch(SUPA_URL + "/rest/v1/" + table, {
-    method:"POST", headers:supaHeaders(), body:JSON.stringify(data)
-  }).then(function(r){return r.json();}).catch(function(){return null;});
-}
-
-function supaUpdate(table, data, match){
-  return fetch(SUPA_URL + "/rest/v1/" + table + "?" + match, {
-    method:"PATCH", headers:supaHeaders(), body:JSON.stringify(data)
-  }).then(function(r){return r.json();}).catch(function(){return null;});
-}
-
-function supaDelete(table, match){
-  return fetch(SUPA_URL + "/rest/v1/" + table + "?" + match, {
-    method:"DELETE", headers:supaHeaders()
-  }).then(function(r){return r.ok;}).catch(function(){return false;});
-}
-
-// ── SYNC: Load all data from Supabase on login ──
-function syncFromCloud(){
-  toast("Syncing from cloud...", "info");
-  var promises = [
-    supaGet("gla_ratings"),
-    supaGet("gla_teachers"),
-    supaGet("gla_settings", "id=eq.global")
-  ];
-  Promise.all(promises).then(function(results){
-    var cloudRatings = results[0];
-    var cloudTeachers = results[1];
-    var cloudSettings = results[2];
-
-    if(cloudRatings && Array.isArray(cloudRatings)){
-      hist = cloudRatings.map(function(r){
-        return {
-          name: r.name,
-          advisoryClass: r.advisory_class||"",
-          subj: r.subj||"",
-          sy: r.sy||"",
-          quarter: r.quarter||"",
-          dateobs: r.date_obs||"",
-          rater: r.rater||"",
-          title: r.title||"",
-          ratedate: r.ratedate||"",
-          recv: r.recv||"",
-          r1: r.r1||{},
-          r2: r.r2||{},
-          r3: r.r3||{},
-          r4: r.r4||{},
-          total: r.total||0,
-          totalDesc: r.total_desc||"",
-          ratings: r.ratings||{},
-          photo: r.photo||null,
-          dateRated: r.date_rated||"",
-          _id: r.id
-        };
-      });
-      localStorage.setItem("gla_hist", JSON.stringify(hist));
-    }
-
-    if(cloudTeachers && Array.isArray(cloudTeachers)){
-      teachers = cloudTeachers.map(function(t){
-        return {
-          name: t.name,
-          dept: t.dept||"",
-          advisoryClass: t.advisory_class||"",
-          subjects: t.subjects||"",
-          photo: t.photo||null,
-          _id: t.id
-        };
-      });
-      localStorage.setItem("gla_teachers", JSON.stringify(teachers));
-    }
-
-    if(cloudSettings && cloudSettings[0]){
-      var cs = cloudSettings[0];
-      settings.rater = cs.rater||settings.rater;
-      settings.title = cs.title||settings.title;
-      settings.sy = cs.sy||settings.sy;
-      settings.adminpw = cs.adminpw||settings.adminpw;
-      settings.userpw = cs.userpw||settings.userpw;
-      localStorage.setItem("gla_settings", JSON.stringify(settings));
-    }
-
-    toast("Synced from cloud!", "success");
-    renderDashboard();
-    // Update badge counts
-    var hb = document.getElementById("hist-badge");
-    if(hb) hb.textContent = hist.length;
-  }).catch(function(){
-    toast("Offline — using local data", "warning");
-  });
-}
-
-// ── SYNC: Save rating to cloud ──
-function syncRatingToCloud(entry){
-  var data = {
-    name: entry.name,
-    advisory_class: entry.advisoryClass||"",
-    subj: entry.subj||"",
-    sy: entry.sy||"",
-    quarter: entry.quarter||"",
-    date_obs: entry.dateobs||"",
-    rater: entry.rater||"",
-    title: entry.title||"",
-    ratedate: entry.ratedate||"",
-    recv: entry.recv||"",
-    r1: entry.r1||{},
-    r2: entry.r2||{},
-    r3: entry.r3||{},
-    r4: entry.r4||{},
-    total: parseFloat(entry.total)||0,
-    total_desc: entry.totalDesc||"",
-    ratings: entry.ratings||{},
-    photo: entry.photo||null,
-    date_rated: entry.dateRated||""
-  };
-  supaInsert("gla_ratings", data).then(function(res){
-    if(res && res[0] && res[0].id){
-      // Store the cloud ID back
-      entry._id = res[0].id;
-      localStorage.setItem("gla_hist", JSON.stringify(hist));
-    }
-  });
-}
-
-// ── SYNC: Save teacher to cloud ──
-function syncTeacherToCloud(teacher){
-  var data = {
-    name: teacher.name,
-    dept: teacher.dept||"",
-    advisory_class: teacher.advisoryClass||"",
-    subjects: teacher.subjects||"",
-    photo: teacher.photo||null
-  };
-  supaInsert("gla_teachers", data).then(function(res){
-    if(res && res[0] && res[0].id){
-      teacher._id = res[0].id;
-      localStorage.setItem("gla_teachers", JSON.stringify(teachers));
-    }
-  });
-}
-
-// ── SYNC: Delete rating from cloud ──
-function syncDeleteRating(entry){
-  if(entry && entry._id){
-    supaDelete("gla_ratings", "id=eq." + entry._id);
-  }
-}
-
-// ── SYNC: Delete teacher from cloud ──
-function syncDeleteTeacher(teacher){
-  if(teacher && teacher._id){
-    supaDelete("gla_teachers", "id=eq." + teacher._id);
-  }
-}
-
-// ── SYNC: Save settings to cloud ──
-function syncSettingsToCloud(){
-  var data = {
-    rater: settings.rater||"",
-    title: settings.title||"",
-    sy: settings.sy||"",
-    adminpw: settings.adminpw||"admin123",
-    userpw: settings.userpw||"user123",
-    updated_at: new Date().toISOString()
-  };
-  supaUpdate("gla_settings", data, "id=eq.global");
-}
-
-
-// ══════════════════════════════════════════════════
 // GLA RATING SYSTEM v3.0
 // GreAtMinds Leadership Academy
 // ══════════════════════════════════════════════════
@@ -1056,112 +837,20 @@ var remarks = {};
 var hist = JSON.parse(localStorage.getItem('gla_hist')||'[]');
 var teachers = JSON.parse(localStorage.getItem('gla_teachers')||'[]');
 var draft = JSON.parse(localStorage.getItem('gla_draft')||'null');
-var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","viewerpw":"viewer123"}');
+var settings = JSON.parse(localStorage.getItem('gla_settings')||'{"rater":"","title":"Academic Coordinator","sy":"2026-2027","adminpw":"admin123","userpw":"user123"}');
 var currentRole = 'guest';
 var autoSaveTimer = null;
 
-
-// ── PROFILE PHOTOS ──
-function uploadProfilePhoto(input){
-  if(!input.files||!input.files[0]) return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    localStorage.setItem('gla_photo_'+currentRole,e.target.result);
-    applyProfilePhoto();
-    toast('Profile photo updated!','success');
-  };
-  reader.readAsDataURL(input.files[0]);
-}
-function removeProfilePhoto(){
-  localStorage.removeItem('gla_photo_'+currentRole);
-  applyProfilePhoto();
-  toast('Photo removed','info');
-}
-function applyProfilePhoto(){
-  var isAdmin=currentRole==='admin';
-  var photo=localStorage.getItem('gla_photo_'+currentRole);
-  var initial=isAdmin?'A':'U';
-  // Sidebar avatar
-  var av=document.getElementById('admin-av');
-  if(av){
-    if(photo){
-      av.innerHTML='<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-    } else {
-      av.innerHTML=initial;
-      av.style.background=isAdmin?'linear-gradient(135deg,#C0392B,#9B2D23)':'linear-gradient(135deg,#059669,#047857)';
-    }
-  }
-  // Settings circle
-  var circle=document.getElementById('profile-photo-circle');
-  if(circle){
-    var oldImg=circle.querySelector('img');
-    if(oldImg) oldImg.remove();
-    var sp=document.getElementById('profile-photo-initial');
-    if(photo){
-      if(sp) sp.style.display='none';
-      var img=document.createElement('img');
-      img.src=photo;
-      img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0;';
-      circle.appendChild(img);
-    } else {
-      if(sp){sp.style.display='';sp.textContent=initial;}
-      circle.style.background=isAdmin?'linear-gradient(135deg,#C0392B,#9B2D23)':'linear-gradient(135deg,#059669,#047857)';
-    }
-  }
-  var dn=document.getElementById('profile-display-name');
-  var dr=document.getElementById('profile-display-role');
-  if(dn) dn.textContent=(settings&&settings.rater)||(isAdmin?'Admin':'User');
-  if(dr) dr.textContent=(isAdmin?'Administrator':'User')+' — '+(settings.title||'Academic Coordinator');
-}
-
-// Teacher photos
-var teacherPhotoData=null;
-function previewTeacherPhoto(input){
-  if(!input.files||!input.files[0]) return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    teacherPhotoData=e.target.result;
-    var preview=document.getElementById('t-photo-preview');
-    if(preview){
-      var old=preview.querySelector('img');if(old) old.remove();
-      var sp=document.getElementById('t-photo-initial');if(sp) sp.style.display='none';
-      var img=document.createElement('img');
-      img.src=teacherPhotoData;
-      img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%;';
-      preview.appendChild(img);
-    }
-  };
-  reader.readAsDataURL(input.files[0]);
-}
-function updateTeacherInitial(){
-  var name=(document.getElementById('t-name')||{}).value||'';
-  var sp=document.getElementById('t-photo-initial');
-  if(sp&&!teacherPhotoData) sp.textContent=name?getInitials(name):'📷';
-}
-function resetTeacherPhotoPreview(){
-  teacherPhotoData=null;
-  var preview=document.getElementById('t-photo-preview');
-  if(preview){var old=preview.querySelector('img');if(old) old.remove();}
-  var sp=document.getElementById('t-photo-initial');
-  if(sp){sp.style.display='';sp.textContent='📷';}
-  var inp=document.getElementById('t-photo-input');
-  if(inp) inp.value='';
-}
-
-
 // ── AUTH ──
 function selectRole(role){
-  document.getElementById('role-admin').classList.toggle('selected', role==='admin');
-  document.getElementById('role-viewer').classList.toggle('selected', role==='viewer');
-  document.getElementById('role-admin').dataset.role = 'admin';
-  document.getElementById('role-viewer').dataset.role = 'viewer';
   document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('selected');});
-  document.getElementById('role-'+role).classList.add('selected');
+  var el=document.getElementById('role-'+role);
+  if(el) el.classList.add('selected');
 }
 
 function getSelectedRole(){
   var sel = document.querySelector('.role-btn.selected');
-  return sel ? (sel.id === 'role-admin' ? 'admin' : 'viewer') : 'admin';
+  return sel ? (sel.id === 'role-admin' ? 'admin' : 'user') : 'admin';
 }
 
 function doLogin(){
@@ -1174,6 +863,7 @@ function doLogin(){
   if(role==='user'&&(pass===''||pass===userpw)) ok=true;
   if(ok){
     currentRole=role;
+    alert('DEBUG: Logged in as role = ' + currentRole + ' | pass = ' + pass + ' | userpw = ' + userpw);
     document.getElementById('login-error').style.display='none';
     document.getElementById('login-page').style.display='none';
     document.getElementById('app-shell').style.display='flex';
@@ -1389,10 +1079,10 @@ function renderHistory(){
 }
 
 function deleteRating(idx){
+  if(currentRole!=='admin'){toast('Only Admin can delete','error');return;}
   if(!confirm('Delete this rating?')) return;
-  var deleted=hist.splice(idx,1)[0];
+  hist.splice(idx,1);
   localStorage.setItem('gla_hist',JSON.stringify(hist));
-  syncDeleteRating(deleted);
   renderHistory();
   toast('Rating deleted','success');
 }
@@ -1437,21 +1127,20 @@ function doAddTeacher(){
   var name=document.getElementById('t-name').value.trim();
   if(!name){toast('Name is required','error');return;}
   if(teachers.find(function(t){return t.name.toLowerCase()===name.toLowerCase();})){toast('Teacher already exists','error');return;}
-  teachers.push({name:name,dept:document.getElementById('t-dept').value.trim(),advisoryClass:document.getElementById('t-class').value.trim(),subjects:document.getElementById('t-subj').value.trim(),photo:teacherPhotoData||null});
+  teachers.push({name:name,dept:document.getElementById('t-dept').value.trim(),advisoryClass:document.getElementById('t-class').value.trim(),subjects:document.getElementById('t-subj').value.trim()});
   localStorage.setItem('gla_teachers',JSON.stringify(teachers));
-  syncTeacherToCloud(teachers[teachers.length-1]);
   closeModal('teacher-modal');
-  ['t-name','t-dept','t-class','t-subj'].forEach(function(id){document.getElementById(id).value='';}); resetTeacherPhotoPreview();
+  ['t-name','t-dept','t-class','t-subj'].forEach(function(id){document.getElementById(id).value='';});
   renderTeachers();
   document.getElementById('s-teachers').textContent=teachers.length;
   toast(name+' added to faculty','success');
 }
 
 function deleteTeacher(idx){
+  if(currentRole!=='admin'){toast('Only Admin can delete','error');return;}
   if(!confirm('Remove this teacher?')) return;
-  var deletedT=teachers.splice(idx,1)[0];
+  teachers.splice(idx,1);
   localStorage.setItem('gla_teachers',JSON.stringify(teachers));
-  syncDeleteTeacher(deletedT);
   renderTeachers();
   document.getElementById('s-teachers').textContent=teachers.length;
   toast('Teacher removed','success');
@@ -1700,7 +1389,6 @@ function saveDraft(silent){
     ratedate:document.getElementById('i-ratedate')?document.getElementById('i-ratedate').value:'',
     recv:document.getElementById('i-recv')?document.getElementById('i-recv').value:'',
     ratings:JSON.parse(JSON.stringify(ratings)),
-    photo:(tRecord&&tRecord.photo)||null,
     remarks:JSON.parse(JSON.stringify(remarks))
   };
   localStorage.setItem('gla_draft',JSON.stringify(draft));
@@ -1772,7 +1460,6 @@ function generateSheet(){
   var r1=calcSec('s1',0.40),r2=calcSec('s2',0.20),r3=calcSec('s3',0.20),r4=calcSec('s4',0.20);
   var total=+(r1.sub+r2.sub+r3.sub+r4.sub).toFixed(2);
   if(!total){toast('Please rate at least some items','error');return;}
-  var tRecord=teachers.find(function(t){return t.name===name;});
   var entry={
     name:name,
     advisoryClass:(document.getElementById('i-class')||{}).value||'',
@@ -1787,12 +1474,10 @@ function generateSheet(){
     r1:r1,r2:r2,r3:r3,r4:r4,
     total:total,totalDesc:getDesc(total),
     ratings:JSON.parse(JSON.stringify(ratings)),
-    photo:(tRecord&&tRecord.photo)||null,
     dateRated:new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})
   };
   hist.unshift(entry);
   localStorage.setItem('gla_hist',JSON.stringify(hist));
-  syncRatingToCloud(entry);
   draft=null; localStorage.removeItem('gla_draft');
   document.getElementById('draft-badge').style.display='none';
   toast('Rating saved! Score: '+total+' ('+getDesc(total)+')','success');
@@ -1802,7 +1487,6 @@ function generateSheet(){
 
 // ── SETTINGS ──
 function loadSettingsForm(){
-  applyProfilePhoto();
   document.getElementById('cfg-rater').value=settings.rater||'';
   document.getElementById('cfg-title').value=settings.title||'Academic Coordinator';
   document.getElementById('cfg-sy').value=settings.sy||'2026-2027';
@@ -1818,11 +1502,12 @@ function saveSettings(){
   settings.viewerpw=document.getElementById('cfg-viewerpw').value||'viewer123';
   localStorage.setItem('gla_settings',JSON.stringify(settings));
   // Update admin profile display
-  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'Viewer';
+  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'User';
   document.getElementById('admin-role-display').textContent=settings.title||'Academic Coordinator';
 }
 
 function clearAll(){
+  if(currentRole!=='admin'){toast('Only Admin can clear data','error');return;}
   if(!confirm('This will permanently delete ALL ratings and drafts. Are you sure?')) return;
   hist=[]; draft=null;
   localStorage.removeItem('gla_hist');
@@ -2123,26 +1808,52 @@ function copyWebUrl(){
 
 // ── INIT ──
 function initApp(){
-  // Update admin info
-  document.getElementById('admin-av').textContent=currentRole==='admin'?'A':'V';
-  document.getElementById('admin-name-display').textContent=currentRole==='admin'?'Admin':'Viewer';
-  document.getElementById('admin-role-display').textContent=settings.title||'Academic Coordinator';
+  var isAdmin = currentRole==='admin';
+
+  // Sidebar profile
+  document.getElementById('admin-av').textContent = isAdmin ? 'A' : 'U';
+  document.getElementById('admin-av').style.background = isAdmin
+    ? 'linear-gradient(135deg,#C0392B,#9B2D23)'
+    : 'linear-gradient(135deg,#059669,#047857)';
+  document.getElementById('admin-name-display').textContent = isAdmin ? 'Admin' : 'User';
+  document.getElementById('admin-role-display').textContent = (isAdmin?'Administrator':'User') + ' — ' + (settings.title||'Academic Coordinator');
+
   // Dark mode
   if(localStorage.getItem('gla_dark')==='1'){
     document.body.classList.add('dark');
-    document.getElementById('dark-btn').textContent='☀️';
+    var db=document.getElementById('dark-btn');
+    if(db) db.textContent='Light';
   }
-  // Greeting
-  renderDashboard();
+
+  // Role restrictions
+  document.body.dataset.role = currentRole;
+
+  // Show/hide New Rating for user role (users CAN rate)
+  // Hide delete buttons, settings password for non-admin
+  var newRatingNav = document.querySelector('.nav-item[onclick*="new-rating"]');
+  var newRatingBtn = document.querySelector('.topbar-right .btn-primary');
+  var viewerBadge = document.getElementById('viewer-badge');
+
+  // Users can rate - show new rating
+  if(newRatingNav) newRatingNav.style.display = '';
+  if(newRatingBtn) newRatingBtn.style.display = '';
+
+  // Show USER badge in topbar for non-admin
+  if(viewerBadge) viewerBadge.style.display = isAdmin ? 'none' : 'flex';
+
+  // Hide password settings section for non-admin
+  var pwSection = document.getElementById('pw-settings');
+  if(pwSection) pwSection.style.display = isAdmin ? '' : 'none';
+
   // Draft badge
-  if(draft){
-    document.getElementById('draft-badge').style.display='inline';
-  }
-  // Viewer restrictions
-  if(currentRole==='viewer'){
-    // Hide new rating button and edit features
-    document.querySelector('.btn-primary[onclick*="new-rating"]').style.display='none';
-  }
+  if(draft) document.getElementById('draft-badge').style.display='inline';
+
+  // Load dashboard
+  renderDashboard();
+}
+
+function applyRoleUI(){
+  initApp();
 }
 </script>
 </body>
